@@ -94,6 +94,7 @@
       margin-bottom: 12px;
       padding-bottom: 10px;
       border-bottom: 2px dashed var(--border);
+      align-items: center;
     }
     .navBtn {
       background: var(--card);
@@ -329,6 +330,13 @@
       border-radius: 40px;
       padding: 6px 16px 6px 20px;
       margin-bottom: 14px;
+      transition: all 0.3s;
+    }
+    .streak-box.pop { animation: pop 0.4s ease; }
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
     .streak-box .fire { font-size: 1.5rem; }
     .streak-box .count { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
@@ -361,7 +369,6 @@
     }
     .footer { text-align: center; font-size: 0.7rem; color: var(--muted); margin-top: 14px; }
 
-    /* daily tip & quote */
     .daily-tip-box {
       background: var(--highlight);
       border: 1px solid var(--hl-border);
@@ -429,6 +436,51 @@
     .xp-bar { height: 6px; background: var(--card); border-radius: 10px; margin: 4px 0; overflow: hidden; }
     .xp-bar .fill { height: 100%; background: var(--accent); border-radius: 10px; transition: width 0.3s; }
 
+    /* Timer ring */
+    .timer-ring {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 3px solid var(--border);
+      position: relative;
+      text-align: center;
+      line-height: 30px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      transition: border-color 0.3s;
+    }
+    .timer-ring.warning { border-color: #f39c12; }
+    .timer-ring.danger { border-color: #e74c3c; animation: pulse 0.5s infinite; }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    .save-indicator {
+      font-size: 0.6rem;
+      color: var(--muted);
+      text-align: right;
+      margin-top: 4px;
+      opacity: 0.7;
+    }
+    .save-indicator.saved { color: #27ae60; }
+
+    .sound-toggle {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.15s;
+    }
+    .sound-toggle:hover { background: var(--highlight); }
+
     @media (max-width: 480px) {
       .container { padding: 12px 12px 18px; border-radius: 16px; }
       h1 { font-size: 1.3rem; }
@@ -475,12 +527,15 @@
 
   <!-- ===== HOME ===== -->
   <div id="screen-home" class="app-screen">
-    <div class="level-display" id="levelDisplay">
-      <span class="lvl" id="levelNum">Lv.1</span>
-      <span class="xp" id="xpText">0 XP</span>
-      <div style="flex:1;"><div class="xp-bar"><div class="fill" id="xpFill" style="width:0%"></div></div></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <div class="level-display" style="flex:1; margin-bottom:0;">
+        <span class="lvl" id="levelNum">Lv.1</span>
+        <span class="xp" id="xpText">0 XP</span>
+        <div style="flex:1;"><div class="xp-bar"><div class="fill" id="xpFill" style="width:0%"></div></div></div>
+      </div>
+      <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Toggle Sound">🔊</button>
     </div>
-    <div class="streak-box">
+    <div class="streak-box" id="streakBox">
       <span class="fire">🔥</span>
       <span class="count" id="streakCount">0</span>
       <span style="font-size:0.8rem; color:var(--muted);">day streak</span>
@@ -497,6 +552,7 @@
     <button class="ghostBtn" onclick="go('conditions')">📋 History</button>
     <button class="ghostBtn" onclick="go('profile')">👤 Profile</button>
     <button class="ghostBtn" onclick="go('appearance')">🎨 Theme</button>
+    <div class="save-indicator" id="saveIndicator">💾 All data saved locally</div>
   </div>
 
   <!-- ===== LIFESTYLE QUIZ ===== -->
@@ -558,7 +614,9 @@
     <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px; flex-wrap:wrap;">
       <span class="catLabel" id="trivia-difficulty">Easy</span>
       <span style="font-size:0.75rem; color:var(--muted);" id="trivia-score">Score: 0</span>
-      <span style="font-size:0.75rem; color:var(--muted);" id="trivia-timer">⏱ 30s</span>
+      <span style="font-size:0.75rem; color:var(--muted); display:flex; align-items:center; gap:4px;">
+        <span class="timer-ring" id="timerRing">30</span>
+      </span>
     </div>
     <h2 id="trivia-question">Loading...</h2>
     <div id="trivia-options"></div>
@@ -583,6 +641,7 @@
   <!-- ===== DAILY CHALLENGE ===== -->
   <div id="screen-daily" class="app-screen">
     <h2>⭐ Daily Challenge</h2>
+    <div id="dailyStatus" style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;"></div>
     <div class="daily-tip-box"><span class="label">📅 Today's Challenge</span><span id="dailyChallengePrompt">Loading...</span></div>
     <div id="daily-options-grid"></div>
     <div id="daily-feedback" class="trivia-feedback" style="display:none;"></div>
@@ -663,7 +722,7 @@
 
 <script>
 /* ============================================================
-   HEALTH HUB — Full Feature Implementation
+   HEALTH HUB — COMPLETE VERSION
    ============================================================ */
 
 // ─── DATA ──────────────────────────────────────────────────────
@@ -780,10 +839,10 @@ const ILLNESS_PROFILES = {
   tensionFatigue: { name: "Tension / fatigue", weights: { headache: 2.5, fatigue: 1.5 }, desc: "Headache and fatigue — often stress or dehydration." }
 };
 
-// ─── TRIVIA POOL (40+ questions, rotates) ──────────────────
+// ─── TRIVIA POOL (60+ questions) ────────────────────────────
 
 const TRIVIA_POOL = [
-  // easy
+  // Easy (20)
   { question: "How many hours of sleep do most adults need?", options: ["4-5", "6-7", "7-9", "10-12"], correct: 2, difficulty: "easy", explanation: "Most adults need 7-9 hours for optimal health." },
   { question: "Which of these is a healthy snack?", options: ["Chips", "Apple", "Candy bar", "Soda"], correct: 1, difficulty: "easy", explanation: "Apples are packed with fiber and vitamins." },
   { question: "How many glasses of water are recommended per day?", options: ["2", "4", "8", "12"], correct: 2, difficulty: "easy", explanation: "About 8 glasses (2 liters) is the common recommendation." },
@@ -792,7 +851,19 @@ const TRIVIA_POOL = [
   { question: "What is the healthiest drink?", options: ["Soda", "Fruit juice", "Water", "Energy drink"], correct: 2, difficulty: "easy", explanation: "Water is calorie-free and essential for hydration." },
   { question: "How many minutes should you brush your teeth?", options: ["30 sec", "1 min", "2 min", "5 min"], correct: 2, difficulty: "easy", explanation: "Dentists recommend brushing for 2 minutes." },
   { question: "Which is a sign of good hydration?", options: ["Dark urine", "Light yellow urine", "Dry mouth", "Headache"], correct: 1, difficulty: "easy", explanation: "Light yellow urine indicates good hydration." },
-  // medium
+  { question: "What's the best way to start your day?", options: ["Check phone", "Drink water", "Eat sugar", "Stay in bed"], correct: 1, difficulty: "easy", explanation: "Drinking water kickstarts your metabolism." },
+  { question: "How long should you wash your hands?", options: ["5 sec", "20 sec", "1 min", "2 min"], correct: 1, difficulty: "easy", explanation: "20 seconds with soap is recommended." },
+  { question: "What's a healthy stress-relief technique?", options: ["Deep breathing", "Eating junk food", "Scrolling social media", "Skipping meals"], correct: 0, difficulty: "easy", explanation: "Deep breathing calms the nervous system." },
+  { question: "How often should you replace your toothbrush?", options: ["Every month", "Every 3 months", "Every 6 months", "Once a year"], correct: 1, difficulty: "easy", explanation: "Replace your toothbrush every 3-4 months." },
+  { question: "What's the best sleeping position?", options: ["On stomach", "On back", "On side", "Fetal"], correct: 2, difficulty: "easy", explanation: "Side sleeping is generally best for spinal alignment." },
+  { question: "Which food is best for brain health?", options: ["Sugary cereal", "Fatty fish", "White bread", "French fries"], correct: 1, difficulty: "easy", explanation: "Fatty fish like salmon is rich in brain-boosting omega-3s." },
+  { question: "What's a good way to reduce screen time?", options: ["Keep phone by bed", "Set screen-free hours", "Watch more TV", "Use tablets"], correct: 1, difficulty: "easy", explanation: "Setting screen-free hours helps reduce eye strain and improve sleep." },
+  { question: "How does exercise help mental health?", options: ["Releases endorphins", "Increases stress", "Reduces sleep", "Causes anxiety"], correct: 0, difficulty: "easy", explanation: "Exercise releases endorphins that boost mood." },
+  { question: "What should you do if you're feeling overwhelmed?", options: ["Keep going", "Take a break", "Eat sugar", "Skip meals"], correct: 1, difficulty: "easy", explanation: "Taking a short break can reset your mind and reduce stress." },
+  { question: "Which drink has the most sugar?", options: ["Soda", "Unsweetened tea", "Black coffee", "Sparkling water"], correct: 0, difficulty: "easy", explanation: "Soda is packed with sugar — often 10+ teaspoons per can." },
+  { question: "What's a good source of calcium?", options: ["Milk", "Bread", "Rice", "Pasta"], correct: 0, difficulty: "easy", explanation: "Milk and dairy products are rich in calcium." },
+  { question: "How many meals a day is generally recommended?", options: ["1-2", "3", "5-6", "8"], correct: 1, difficulty: "easy", explanation: "3 balanced meals a day is the common recommendation." },
+  // Medium (20)
   { question: "What does BMI stand for?", options: ["Body Mass Index", "Basic Metabolic Indicator", "Blood Muscle Index", "Bone Mineral Intensity"], correct: 0, difficulty: "medium", explanation: "BMI is a measure of body fat based on height and weight." },
   { question: "Which of these is NOT a symptom of dehydration?", options: ["Dark urine", "Dry mouth", "Fever", "Dizziness"], correct: 2, difficulty: "medium", explanation: "Fever is a sign of infection, not dehydration." },
   { question: "How many minutes of moderate exercise is recommended weekly?", options: ["30", "75", "150", "300"], correct: 2, difficulty: "medium", explanation: "150 minutes of moderate exercise is the guideline." },
@@ -804,7 +875,16 @@ const TRIVIA_POOL = [
   { question: "What is a healthy blood pressure reading?", options: ["90/60", "120/80", "140/90", "160/100"], correct: 1, difficulty: "medium", explanation: "120/80 is considered normal blood pressure." },
   { question: "What does the 'fiber' in food help with?", options: ["Digestion", "Vision", "Hearing", "Memory"], correct: 0, difficulty: "medium", explanation: "Fiber aids digestion and helps prevent constipation." },
   { question: "Which vitamin is good for your eyes?", options: ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin K"], correct: 0, difficulty: "medium", explanation: "Vitamin A is important for good vision." },
-  // hard
+  { question: "What is the function of red blood cells?", options: ["Carry oxygen", "Fight infection", "Clot blood", "Digest food"], correct: 0, difficulty: "medium", explanation: "Red blood cells carry oxygen throughout the body." },
+  { question: "Which of these is a whole grain?", options: ["White bread", "Brown rice", "White pasta", "Cake"], correct: 1, difficulty: "medium", explanation: "Brown rice is a whole grain with more nutrients." },
+  { question: "What is the recommended daily fiber intake?", options: ["5g", "15g", "25g", "50g"], correct: 2, difficulty: "medium", explanation: "25g of fiber per day is recommended for adults." },
+  { question: "Which nutrient provides the most energy?", options: ["Vitamins", "Minerals", "Carbohydrates", "Water"], correct: 2, difficulty: "medium", explanation: "Carbohydrates are the body's main energy source." },
+  { question: "What is the 'fight or flight' response?", options: ["Digestion", "Stress response", "Sleep cycle", "Memory formation"], correct: 1, difficulty: "medium", explanation: "The fight-or-flight response is the body's reaction to perceived danger." },
+  { question: "How does sleep affect the immune system?", options: ["Weakens it", "Strengthens it", "No effect", "Makes it worse"], correct: 1, difficulty: "medium", explanation: "Quality sleep strengthens the immune system." },
+  { question: "What's a healthy way to lose weight?", options: ["Skipping meals", "Balanced diet + exercise", "Extreme fasting", "Only eating fruit"], correct: 1, difficulty: "medium", explanation: "A balanced diet combined with exercise is the healthiest approach." },
+  { question: "Which food is high in iron?", options: ["Spinach", "Cucumber", "Lettuce", "Celery"], correct: 0, difficulty: "medium", explanation: "Spinach is a good source of iron." },
+  { question: "What is the purpose of the liver?", options: ["Filter blood", "Store fat", "Produce insulin", "Filter air"], correct: 0, difficulty: "medium", explanation: "The liver filters blood and processes nutrients." },
+  // Hard (20)
   { question: "What is the normal resting heart rate for adults?", options: ["40-50", "60-100", "110-130", "140-160"], correct: 1, difficulty: "hard", explanation: "Normal resting heart rate is 60-100 bpm." },
   { question: "Which of these is a complex carbohydrate?", options: ["White sugar", "Brown rice", "Honey", "Fruit juice"], correct: 1, difficulty: "hard", explanation: "Brown rice is a complex carb that digests slowly." },
   { question: "What is the body's largest organ?", options: ["Liver", "Skin", "Brain", "Lung"], correct: 1, difficulty: "hard", explanation: "The skin is the largest organ, protecting the body." },
@@ -816,6 +896,15 @@ const TRIVIA_POOL = [
   { question: "What is the 'fight or flight' response triggered by?", options: ["Adrenaline", "Cortisol", "Serotonin", "Dopamine"], correct: 0, difficulty: "hard", explanation: "Adrenaline triggers the fight-or-flight response." },
   { question: "How much of the body is water?", options: ["~30%", "~50%", "~60%", "~80%"], correct: 2, difficulty: "hard", explanation: "About 60% of the human body is water." },
   { question: "What is the purpose of white blood cells?", options: ["Carry oxygen", "Fight infection", "Clot blood", "Digest food"], correct: 1, difficulty: "hard", explanation: "White blood cells are key players in the immune system." },
+  { question: "What is the 'inflammation' response?", options: ["Body's healing response", "Digestion process", "Sleep cycle", "Memory formation"], correct: 0, difficulty: "hard", explanation: "Inflammation is the body's natural healing response to injury or infection." },
+  { question: "Which vitamin is fat-soluble?", options: ["Vitamin C", "Vitamin B12", "Vitamin D", "Vitamin B6"], correct: 2, difficulty: "hard", explanation: "Vitamins A, D, E, and K are fat-soluble." },
+  { question: "What is the function of the pancreas?", options: ["Filter blood", "Produce insulin", "Store fat", "Filter air"], correct: 1, difficulty: "hard", explanation: "The pancreas produces insulin to regulate blood sugar." },
+  { question: "What is the 'blood-brain barrier'?", options: ["Protects the brain", "Filters air", "Digests food", "Pumps blood"], correct: 0, difficulty: "hard", explanation: "The blood-brain barrier protects the brain from harmful substances." },
+  { question: "Which mineral is important for thyroid function?", options: ["Iron", "Zinc", "Iodine", "Calcium"], correct: 2, difficulty: "hard", explanation: "Iodine is essential for proper thyroid function." },
+  { question: "What is the 'FODMAP' diet used for?", options: ["Weight loss", "Digestive issues", "Heart health", "Bone health"], correct: 1, difficulty: "hard", explanation: "The FODMAP diet is used to manage digestive issues like IBS." },
+  { question: "What is the function of mitochondria?", options: ["Energy production", "Protein synthesis", "DNA storage", "Cell division"], correct: 0, difficulty: "hard", explanation: "Mitochondria are the powerhouse of the cell, producing energy." },
+  { question: "What is the 'oxidative stress'?", options: ["Cell damage from free radicals", "Digestion process", "Sleep cycle", "Memory formation"], correct: 0, difficulty: "hard", explanation: "Oxidative stress is cell damage caused by free radicals." },
+  { question: "What is the 'telomere'?", options: ["DNA protection", "Digestion process", "Sleep cycle", "Memory formation"], correct: 0, difficulty: "hard", explanation: "Telomeres protect the ends of DNA chromosomes." },
 ];
 
 // ─── DAILY CHALLENGE DATA ────────────────────────────────────
@@ -831,6 +920,11 @@ const DAILY_POOL = [
   { question: "How does exercise help mental health?", options: ["Releases endorphins", "Increases stress", "Reduces sleep", "Causes anxiety"], correct: 0, explanation: "Exercise releases endorphins that boost mood." },
   { question: "What should you do if you're feeling overwhelmed?", options: ["Keep going", "Take a break", "Eat sugar", "Skip meals"], correct: 1, explanation: "Taking a short break can reset your mind and reduce stress." },
   { question: "Which drink has the most sugar?", options: ["Soda", "Unsweetened tea", "Black coffee", "Sparkling water"], correct: 0, explanation: "Soda is packed with sugar — often 10+ teaspoons per can." },
+  { question: "What's a good source of calcium?", options: ["Milk", "Bread", "Rice", "Pasta"], correct: 0, explanation: "Milk and dairy products are rich in calcium." },
+  { question: "How many meals a day is generally recommended?", options: ["1-2", "3", "5-6", "8"], correct: 1, explanation: "3 balanced meals a day is the common recommendation." },
+  { question: "What's a healthy snack option?", options: ["Chips", "Apple", "Candy bar", "Soda"], correct: 1, explanation: "Apples are packed with fiber and vitamins." },
+  { question: "How much water should you drink daily?", options: ["2 glasses", "4 glasses", "8 glasses", "12 glasses"], correct: 2, explanation: "About 8 glasses (2 liters) is the common recommendation." },
+  { question: "What vitamin comes from sunlight?", options: ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin E"], correct: 2, explanation: "Vitamin D is produced when skin is exposed to sunlight." },
 ];
 
 // ─── ACHIEVEMENT DEFINITIONS ─────────────────────────────────
@@ -844,6 +938,7 @@ const ACHIEVEMENTS = [
   { id: 'level_5', name: 'Level Up!', icon: '⬆️', desc: 'Reach level 5', check: s => s.level >= 5 },
   { id: 'level_10', name: 'Health Legend', icon: '🏆', desc: 'Reach level 10', check: s => s.level >= 10 },
   { id: 'daily_7', name: 'Daily Challenger', icon: '⭐', desc: 'Complete 7 daily challenges', check: s => s.dailyCompleted >= 7 },
+  { id: 'trivia_perfect', name: 'Perfect Score', icon: '💯', desc: 'Get 20/20 on trivia', check: s => s.bestTrivia >= 20 },
 ];
 
 // ─── STATE ────────────────────────────────────────────────────
@@ -855,14 +950,13 @@ let state = {
   guestProfile: { pic: null, section: '', grade: '', description: '' },
   currentScreen: 'login',
   currentTheme: 'blue',
-  // stats
+  soundEnabled: true,
   totalQuizzes: 0,
   totalXP: 0,
   bestTrivia: 0,
   dailyCompleted: 0,
   streak: 0,
   level: 1,
-  // quiz states
   currentStep: 0,
   answers: {},
   signals: [],
@@ -882,6 +976,7 @@ let state = {
   dailyScore: 0,
   dailyAnswered: false,
   unlockedAchievements: [],
+  dailyCompletedToday: false,
 };
 
 // ─── HELPERS ──────────────────────────────────────────────────
@@ -896,7 +991,6 @@ function shuffleArray(arr) {
 
 function getTriviaSet(count = 20) {
   let pool = [...TRIVIA_POOL];
-  while (pool.length < count) pool = pool.concat([...TRIVIA_POOL]);
   shuffleArray(pool);
   return pool.slice(0, count);
 }
@@ -940,12 +1034,13 @@ function getLevelProgress(xp) {
   return ((xp - base) / 100) * 100;
 }
 
-// ─── SOUND EFFECTS (Web Audio) ──────────────────────────────
+// ─── SOUND EFFECTS ──────────────────────────────────────────
 
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 
 function playSound(type) {
+  if (!state.soundEnabled) return;
   try {
     if (!audioCtx) audioCtx = new AudioCtx();
     const osc = audioCtx.createOscillator();
@@ -979,8 +1074,19 @@ function playSound(type) {
       osc.frequency.setValueAtTime(1319, audioCtx.currentTime + 0.4);
       osc.start(audioCtx.currentTime);
       osc.stop(audioCtx.currentTime + 0.6);
+    } else if (type === 'click') {
+      osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + 0.05);
     }
   } catch (e) { /* silent */ }
+}
+
+function toggleSound() {
+  state.soundEnabled = !state.soundEnabled;
+  document.getElementById('soundToggle').textContent = state.soundEnabled ? '🔊' : '🔇';
+  saveState();
+  if (state.soundEnabled) playSound('click');
 }
 
 // ─── CONFETTI ──────────────────────────────────────────────────
@@ -1048,6 +1154,7 @@ function saveState() {
       guestHistory: state.guestHistory,
       guestProfile: state.guestProfile,
       currentTheme: state.currentTheme,
+      soundEnabled: state.soundEnabled,
       totalQuizzes: state.totalQuizzes,
       totalXP: state.totalXP,
       bestTrivia: state.bestTrivia,
@@ -1055,8 +1162,18 @@ function saveState() {
       streak: state.streak,
       unlockedAchievements: state.unlockedAchievements,
       level: state.level,
+      dailyCompletedToday: state.dailyCompletedToday,
     };
     localStorage.setItem('healthHubData', JSON.stringify(data));
+    const indicator = document.getElementById('saveIndicator');
+    if (indicator) {
+      indicator.textContent = '💾 Saved!';
+      indicator.className = 'save-indicator saved';
+      setTimeout(() => {
+        indicator.textContent = '💾 All data saved locally';
+        indicator.className = 'save-indicator';
+      }, 2000);
+    }
   } catch (e) { /* ignore */ }
 }
 
@@ -1069,6 +1186,7 @@ function loadState() {
     state.guestHistory = data.guestHistory || [];
     state.guestProfile = data.guestProfile || { pic: null, section: '', grade: '', description: '' };
     state.currentTheme = data.currentTheme || 'blue';
+    state.soundEnabled = data.soundEnabled !== undefined ? data.soundEnabled : true;
     state.totalQuizzes = data.totalQuizzes || 0;
     state.totalXP = data.totalXP || 0;
     state.bestTrivia = data.bestTrivia || 0;
@@ -1076,7 +1194,9 @@ function loadState() {
     state.streak = data.streak || 0;
     state.unlockedAchievements = data.unlockedAchievements || [];
     state.level = data.level || 1;
-    // check streak continuity
+    state.dailyCompletedToday = data.dailyCompletedToday || false;
+    
+    // Check streak continuity
     const today = new Date().toDateString();
     const lastDate = localStorage.getItem('healthHubLastDate');
     if (lastDate && lastDate !== today) {
@@ -1085,10 +1205,12 @@ function loadState() {
       if (lastDate !== yesterday.toDateString()) {
         state.streak = 0;
       }
+      state.dailyCompletedToday = false;
     }
     localStorage.setItem('healthHubLastDate', today);
-    // apply theme
+    
     document.body.className = state.currentTheme === 'blue' ? '' : ('theme-' + state.currentTheme);
+    document.getElementById('soundToggle').textContent = state.soundEnabled ? '🔊' : '🔇';
   } catch (e) { /* ignore */ }
 }
 
@@ -1121,7 +1243,6 @@ function checkAchievements() {
   if (newUnlocked.length > 0) {
     playSound('complete');
     triggerConfetti();
-    // show notification
     const names = newUnlocked.map(a => a.icon + ' ' + a.name).join(', ');
     alert('🏆 Achievement Unlocked: ' + names + '!');
     saveState();
@@ -1188,6 +1309,14 @@ function go(screenId) {
     document.getElementById('quoteBox').innerHTML = getQuote();
     updateStreakDisplay();
     updateLevelDisplay();
+    // Check if daily challenge already done today
+    const today = new Date().toDateString();
+    const lastDaily = localStorage.getItem('healthHubLastDaily');
+    if (lastDaily === today) {
+      state.dailyCompletedToday = true;
+    } else {
+      state.dailyCompletedToday = false;
+    }
   }
   if (screenId === 'conditions') renderConditions();
   if (screenId === 'appearance') renderThemeGrid();
@@ -1316,7 +1445,15 @@ function renderHomeProfileHeader() {
 // ─── STREAK ──────────────────────────────────────────────────
 
 function updateStreakDisplay() {
-  document.getElementById('streakCount').textContent = state.streak;
+  const el = document.getElementById('streakCount');
+  el.textContent = state.streak;
+  const box = document.getElementById('streakBox');
+  box.classList.remove('pop');
+  // Trigger pop animation on streak change
+  if (state.streak > 0 && state.streak % 7 === 0) {
+    setTimeout(() => box.classList.add('pop'), 50);
+    triggerConfetti();
+  }
 }
 
 // ─── LIFESTYLE QUIZ ──────────────────────────────────────────
@@ -1426,7 +1563,6 @@ function showResults() {
     document.getElementById('signals-section').style.display = 'none';
   }
 
-  // Save to history & update stats
   const history = state.currentUser ? state.currentUser.history : state.guestHistory;
   history.unshift({
     type: 'lifestyle',
@@ -1653,15 +1789,23 @@ function renderTriviaQuestion() {
   document.getElementById('trivia-next-btn').style.display = 'none';
   state.triviaAnswered = false;
   state.triviaTimeLeft = 30;
-  document.getElementById('trivia-timer').textContent = '⏱ 30s';
+  
+  const timerRing = document.getElementById('timerRing');
+  timerRing.textContent = '30';
+  timerRing.className = 'timer-ring';
+  
   if (state.triviaTimer) clearInterval(state.triviaTimer);
   state.triviaTimer = setInterval(() => {
     state.triviaTimeLeft--;
-    document.getElementById('trivia-timer').textContent = '⏱ ' + state.triviaTimeLeft + 's';
+    timerRing.textContent = state.triviaTimeLeft;
+    if (state.triviaTimeLeft <= 10) {
+      timerRing.className = 'timer-ring danger';
+    } else if (state.triviaTimeLeft <= 20) {
+      timerRing.className = 'timer-ring warning';
+    }
     if (state.triviaTimeLeft <= 0) {
       clearInterval(state.triviaTimer);
       if (!state.triviaAnswered) {
-        // auto-answer wrong
         state.triviaAnswered = true;
         const buttons = document.querySelectorAll('#trivia-options .trivia-opt');
         buttons.forEach((btn, i) => {
@@ -1773,6 +1917,15 @@ function showTriviaResults() {
 // ─── DAILY CHALLENGE ─────────────────────────────────────────
 
 function startDailyChallenge() {
+  const today = new Date().toDateString();
+  const lastDaily = localStorage.getItem('healthHubLastDaily');
+  
+  if (lastDaily === today && state.dailyCompletedToday) {
+    alert('⭐ You\'ve already completed today\'s daily challenge! Come back tomorrow for a new one. 😊');
+    go('home');
+    return;
+  }
+  
   state.dailyQuestions = getDailySet(5);
   state.dailyIndex = 0;
   state.dailyScore = 0;
@@ -1780,6 +1933,7 @@ function startDailyChallenge() {
   state.currentScreen = 'daily';
   document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-daily').classList.add('active');
+  document.getElementById('dailyStatus').textContent = '⭐ Today\'s Challenge — ' + state.dailyQuestions.length + ' questions';
   renderNav();
   renderDailyQuestion();
 }
@@ -1851,6 +2005,8 @@ function showDailyResults() {
   state.totalQuizzes++;
   state.streak++;
   state.dailyCompleted++;
+  state.dailyCompletedToday = true;
+  localStorage.setItem('healthHubLastDaily', new Date().toDateString());
   addXP(25 + state.dailyScore * 5);
   saveState();
   checkAchievements();
@@ -1943,7 +2099,6 @@ function setTheme(themeId) {
 // ─── INIT ─────────────────────────────────────────────────────
 
 loadState();
-// restore streak from last date
 const today = new Date().toDateString();
 const lastDate = localStorage.getItem('healthHubLastDate');
 if (lastDate) {
@@ -1955,10 +2110,8 @@ if (lastDate) {
 }
 localStorage.setItem('healthHubLastDate', today);
 
-// check if user exists from storage
 const userKeys = Object.keys(state.users);
 if (userKeys.length > 0) {
-  // auto-login first user (for demo convenience)
   const firstUser = userKeys[0];
   state.currentUser = { username: firstUser, isGuest: false, history: state.users[firstUser].history || [], profile: state.users[firstUser].profile || { pic: null, section: '', grade: '', description: '' } };
   go('home');
@@ -1966,11 +2119,11 @@ if (userKeys.length > 0) {
   go('login');
 }
 
-// Update daily tip and quote on home
 document.getElementById('dailyTip').textContent = getDailyTip();
 document.getElementById('quoteBox').innerHTML = getQuote();
+document.getElementById('soundToggle').textContent = state.soundEnabled ? '🔊' : '🔇';
 
-console.log('🩺 Health Hub loaded! Features: daily tips, sounds, confetti, stats, achievements, daily challenges, timed mode, levels, quotes, local storage, offline ready.');
+console.log('🩺 Health Hub Complete! Features: daily tips, sounds, confetti, stats, achievements, daily challenges, timed mode, levels, quotes, local storage, offline ready.');
 </script>
 </body>
 </html>

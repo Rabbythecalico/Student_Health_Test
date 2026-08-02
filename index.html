@@ -1,343 +1,448 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Health Check Quiz</title>
-<style>
-  :root {
-    --bg: #dceeff;
-    --panel-bg: #ffffff;
-    --border: #3b6ea5;
-    --accent: #3b6ea5;
-    --accent-dark: #2b567f;
-    --text: #222222;
-    --muted: #666666;
-    --card-bg: #eaf3ff;
-    --highlight: #ffe58a;
-    --highlight-border: #e0a800;
-  }
-  body.theme-dark {
-    --bg: #16202b;
-    --panel-bg: #1f2c3a;
-    --border: #4a90c4;
-    --accent: #4a90c4;
-    --accent-dark: #367099;
-    --text: #eef3f8;
-    --muted: #a9b7c5;
-    --card-bg: #263646;
-    --highlight: #3c4a5c;
-    --highlight-border: #4a90c4;
-  }
-  body.theme-pink {
-    --bg: #ffe4ef;
-    --panel-bg: #fffafc;
-    --border: #d9709e;
-    --accent: #d9709e;
-    --accent-dark: #b4547c;
-    --text: #3a2230;
-    --muted: #8a6675;
-    --card-bg: #fff0f6;
-    --highlight: #ffd3e6;
-    --highlight-border: #d9709e;
-  }
-  body.theme-green {
-    --bg: #e2f3e5;
-    --panel-bg: #fbfffc;
-    --border: #4c8c5b;
-    --accent: #4c8c5b;
-    --accent-dark: #396c45;
-    --text: #223a27;
-    --muted: #5f7d66;
-    --card-bg: #edf8ee;
-    --highlight: #cdeed2;
-    --highlight-border: #4c8c5b;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Health Check & Trivia</title>
+  <style>
+    /* ── reset & base ── */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-  * { box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--text);
-    margin: 0;
-    padding: 16px;
-    transition: background 0.2s ease, color 0.2s ease;
-  }
-  .container {
-    max-width: 520px;
-    margin: 0 auto;
-    background: var(--panel-bg);
-    border: 3px solid var(--border);
-    border-radius: 10px;
-    padding: 18px;
-    transition: background 0.2s ease, border-color 0.2s ease;
-  }
-  h1 {
-    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
-    color: var(--accent);
-    font-size: 24px;
-    text-align: center;
-    margin: 0 0 4px;
-  }
-  h2 {
-    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
-    color: var(--accent);
-    font-size: 19px;
-    margin-top: 0;
-  }
-  p { line-height: 1.5; font-size: 14px; }
-  .app-screen { display: none; }
-  .app-screen.active { display: block; }
+    body {
+      background: #dceeff;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      color: #1a2634;
+      padding: 12px;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
 
-  /* nav */
-  #navbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    justify-content: center;
-    margin-bottom: 14px;
-    padding-bottom: 10px;
-    border-bottom: 2px dashed var(--border);
-  }
-  .navBtn {
-    background: var(--card-bg);
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 10px;
-    font-size: 12.5px;
-    cursor: pointer;
-    color: var(--text);
-    font-weight: bold;
-  }
-  .navBtn:hover { background: var(--highlight); }
-  .navBtn.active { background: var(--accent); color: #fff; }
-  #userTag {
-    font-size: 12px;
-    color: var(--muted);
-    text-align: center;
-    margin-bottom: 10px;
-  }
+    /* themes (light as default) */
+    body.theme-dark {
+      --bg: #16202b;
+      --panel: #1f2c3a;
+      --border: #4a90c4;
+      --accent: #4a90c4;
+      --accent-dark: #367099;
+      --text: #eef3f8;
+      --muted: #a9b7c5;
+      --card: #263646;
+      --highlight: #3c4a5c;
+      --hl-border: #4a90c4;
+    }
+    body.theme-pink {
+      --bg: #ffe4ef;
+      --panel: #fffafc;
+      --border: #d9709e;
+      --accent: #d9709e;
+      --accent-dark: #b4547c;
+      --text: #3a2230;
+      --muted: #8a6675;
+      --card: #fff0f6;
+      --highlight: #ffd3e6;
+      --hl-border: #d9709e;
+    }
+    body.theme-green {
+      --bg: #e2f3e5;
+      --panel: #fbfffc;
+      --border: #4c8c5b;
+      --accent: #4c8c5b;
+      --accent-dark: #396c45;
+      --text: #223a27;
+      --muted: #5f7d66;
+      --card: #edf8ee;
+      --highlight: #cdeed2;
+      --hl-border: #4c8c5b;
+    }
+    /* default blue theme */
+    body:not(.theme-dark):not(.theme-pink):not(.theme-green) {
+      --bg: #dceeff;
+      --panel: #ffffff;
+      --border: #3b6ea5;
+      --accent: #3b6ea5;
+      --accent-dark: #2b567f;
+      --text: #1e2a3a;
+      --muted: #5b6f82;
+      --card: #eaf3ff;
+      --highlight: #ffe58a;
+      --hl-border: #e0a800;
+    }
 
-  .btn {
-    display: block;
-    width: 100%;
-    background: var(--card-bg);
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    padding: 10px;
-    margin: 6px 0;
-    font-size: 14px;
-    text-align: left;
-    cursor: pointer;
-    color: var(--text);
-  }
-  .btn:hover { background: var(--highlight); }
-  .btn.selected { background: var(--highlight); border-color: var(--highlight-border); }
-  .startBtn {
-    background: var(--accent);
-    color: white;
-    font-weight: bold;
-    font-size: 15px;
-    border: none;
-    border-radius: 6px;
-    padding: 11px;
-    width: 100%;
-    cursor: pointer;
-    margin-top: 8px;
-  }
-  .startBtn:hover { background: var(--accent-dark); }
-  .ghostBtn {
-    background: transparent;
-    border: 2px solid var(--border);
-    color: var(--text);
-    border-radius: 6px;
-    padding: 9px;
-    width: 100%;
-    font-size: 13px;
-    cursor: pointer;
-    margin-top: 6px;
-  }
+    .container {
+      max-width: 560px;
+      width: 100%;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 3px solid var(--border);
+      border-radius: 20px;
+      padding: 16px 18px 24px;
+      transition: background 0.2s, border-color 0.2s;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
 
-  input[type=text], input[type=password] {
-    width: 100%;
-    padding: 9px;
-    margin: 5px 0 10px;
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    font-size: 14px;
-    background: var(--panel-bg);
-    color: var(--text);
-  }
-  label { font-size: 12.5px; color: var(--muted); }
-  .formNote { font-size: 11.5px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
-  .errorMsg { color: #c0392b; font-size: 12.5px; margin-bottom: 6px; }
-  .linkBtn {
-    background: none; border: none; color: var(--accent);
-    text-decoration: underline; cursor: pointer; font-size: 13px; padding: 0;
-  }
+    h1 {
+      font-size: 1.6rem;
+      color: var(--accent);
+      text-align: center;
+      letter-spacing: -0.3px;
+      margin-bottom: 2px;
+      font-weight: 700;
+    }
+    h2 {
+      font-size: 1.2rem;
+      color: var(--accent);
+      margin-top: 0;
+      font-weight: 600;
+    }
+    p { line-height: 1.5; font-size: 0.95rem; }
 
-  .progressText { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
-  .progressBarOuter {
-    background: var(--card-bg); border-radius: 6px; height: 12px; width: 100%;
-    margin-bottom: 15px; border: 1px solid var(--border);
-  }
-  .progressBarInner { background: var(--accent); height: 100%; border-radius: 6px; }
-  .catLabel {
-    display: inline-block; background: var(--highlight); border: 1px solid var(--highlight-border);
-    border-radius: 4px; padding: 2px 8px; font-size: 12px; margin-bottom: 8px;
-  }
+    /* screens */
+    .app-screen { display: none; }
+    .app-screen.active { display: block; }
 
-  .barRow { margin-bottom: 12px; }
-  .barLabel { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 3px; }
-  .barOuter { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; height: 16px; width: 100%; }
-  .barInner { height: 100%; border-radius: 6px 0 0 6px; }
+    /* navbar */
+    #navbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 2px dashed var(--border);
+    }
+    .navBtn {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 30px;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text);
+      transition: 0.15s;
+      white-space: nowrap;
+    }
+    .navBtn:hover { background: var(--highlight); }
+    .navBtn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-  .overallBox {
-    text-align: center; background: var(--card-bg); border: 2px dashed var(--border);
-    border-radius: 8px; padding: 10px; margin: 12px 0;
-  }
-  .overallBox .num { font-size: 34px; font-weight: bold; color: var(--accent); }
+    #userTag {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 8px;
+    }
 
-  .conditionBox {
-    background: var(--card-bg); border: 2px solid var(--highlight-border);
-    border-radius: 8px; padding: 12px; margin-bottom: 15px;
-  }
-  .conditionBox h3 { margin: 0 0 6px; color: var(--accent-dark); font-family: "Comic Sans MS", cursive, sans-serif; }
+    /* buttons */
+    .btn {
+      display: block;
+      width: 100%;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 5px 0;
+      font-size: 0.95rem;
+      text-align: left;
+      cursor: pointer;
+      color: var(--text);
+      transition: 0.12s;
+    }
+    .btn:hover { background: var(--highlight); }
+    .btn.selected { background: var(--highlight); border-color: var(--hl-border); }
 
-  .tipCard { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-bottom: 8px; }
-  .tipCard b { color: var(--accent); }
+    .startBtn {
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 30px;
+      padding: 13px;
+      width: 100%;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: 0.15s;
+    }
+    .startBtn:hover { background: var(--accent-dark); }
 
-  .signalTags span {
-    display: inline-block; background: var(--card-bg); border: 1px solid var(--border);
-    border-radius: 12px; padding: 3px 9px; font-size: 12px; margin: 2px;
-  }
+    .ghostBtn {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text);
+      border-radius: 30px;
+      padding: 10px;
+      width: 100%;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 6px;
+    }
 
-  .historyCard {
-    background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px;
-    padding: 10px; margin-bottom: 10px;
-  }
-  .historyCard .hDate { font-size: 11.5px; color: var(--muted); margin-bottom: 4px; }
-  .historyCard .hTitle { font-weight: bold; color: var(--accent-dark); margin-bottom: 3px; }
-  .emptyMsg { text-align: center; color: var(--muted); font-size: 13.5px; padding: 20px 0; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 5px 0 10px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      background: var(--panel);
+      color: var(--text);
+      font-family: inherit;
+    }
+    textarea { min-height: 60px; resize: vertical; }
 
-  .themeGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-  .themeSwatch {
-    border: 2px solid var(--border); border-radius: 8px; padding: 10px; cursor: pointer; text-align: center;
-  }
-  .themeSwatch.active { outline: 3px solid var(--highlight-border); }
-  .swatchDot { width: 26px; height: 26px; border-radius: 50%; margin: 0 auto 6px; }
+    label { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
 
-  .disclaimer {
-    font-size: 11px; color: var(--muted); border-top: 1px dashed var(--border);
-    margin-top: 15px; padding-top: 10px; line-height: 1.4;
-  }
-  .footer { text-align: center; font-size: 11px; color: var(--muted); margin-top: 15px; }
+    .errorMsg { color: #c0392b; font-size: 0.8rem; margin-bottom: 4px; }
+    .successMsg { color: #2b7a3a; font-size: 0.8rem; margin-bottom: 4px; }
 
-  .urgentBox {
-    background: #fdecea; border: 2px solid #c0392b; border-radius: 8px;
-    padding: 12px; margin-bottom: 15px; color: #7a2118;
-  }
-  .urgentBox h3 { margin: 0 0 6px; color: #c0392b; }
-  .matchPill {
-    display: inline-block; background: var(--accent); color: #fff; border-radius: 12px;
-    padding: 3px 10px; font-size: 12px; margin-left: 6px;
-  }
-  .typeTag {
-    display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 4px;
-    margin-right: 6px; background: var(--card-bg); border: 1px solid var(--border); color: var(--muted);
-  }
+    .progressText { font-size: 0.8rem; color: var(--muted); }
+    .progressBarOuter {
+      background: var(--card);
+      border-radius: 20px;
+      height: 10px;
+      width: 100%;
+      margin: 6px 0 14px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .progressBarInner {
+      background: var(--accent);
+      height: 100%;
+      border-radius: 20px;
+      transition: width 0.2s;
+    }
 
-  /* PROFILE ADDITIONS */
-  .profileHeader {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--card-bg);
-    border: 2px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 14px;
-  }
-  .profilePicWrap {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid var(--border);
-    background: var(--panel-bg);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-  }
-  .profilePicWrap img { width: 100%; height: 100%; object-fit: cover; }
-  .profileMeta { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
-  .profileMeta .pName { font-weight: bold; color: var(--text); font-size: 14.5px; }
+    .catLabel {
+      display: inline-block;
+      background: var(--highlight);
+      border: 1px solid var(--hl-border);
+      border-radius: 30px;
+      padding: 2px 14px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
 
-  .picUploadRow {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-  .picPreviewLarge {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 2px solid var(--border);
-    background: var(--card-bg);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 30px;
-  }
-  .picPreviewLarge img { width: 100%; height: 100%; object-fit: cover; }
-  select {
-    width: 100%;
-    padding: 9px;
-    margin: 5px 0 10px;
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    font-size: 14px;
-    background: var(--panel-bg);
-    color: var(--text);
-  }
-  textarea {
-    width: 100%;
-    padding: 9px;
-    margin: 5px 0 10px;
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    font-size: 14px;
-    background: var(--panel-bg);
-    color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
-    resize: vertical;
-    min-height: 70px;
-  }
-  .fileBtn {
-    background: var(--card-bg);
-    border: 2px solid var(--border);
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 12.5px;
-    cursor: pointer;
-    color: var(--text);
-  }
-  .fileBtn:hover { background: var(--highlight); }
-  .successMsg { color: #2b7a3a; font-size: 12.5px; margin-bottom: 6px; }
-</style>
+    /* cards */
+    .tipCard, .conditionBox, .historyCard {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+    .conditionBox h3 { margin-bottom: 4px; color: var(--accent-dark); }
+    .urgentBox {
+      background: #fdecea;
+      border: 2px solid #c0392b;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 14px;
+      color: #7a2118;
+    }
+    .urgentBox h3 { margin: 0 0 4px; color: #c0392b; }
+    .matchPill {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 30px;
+      padding: 2px 12px;
+      font-size: 0.7rem;
+      margin-left: 6px;
+    }
+    .typeTag {
+      display: inline-block;
+      font-size: 0.65rem;
+      padding: 2px 10px;
+      border-radius: 30px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-right: 6px;
+    }
+    .signalTags span {
+      display: inline-block;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 2px 12px;
+      font-size: 0.7rem;
+      margin: 2px 3px 2px 0;
+    }
+    .overallBox {
+      text-align: center;
+      background: var(--card);
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      margin: 10px 0;
+    }
+    .overallBox .num { font-size: 2.4rem; font-weight: 700; color: var(--accent); }
+
+    /* profile */
+    .profileHeader {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+    .profilePicWrap {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      background: var(--panel);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+    .profilePicWrap img { width: 100%; height: 100%; object-fit: cover; }
+    .profileMeta { font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+    .profileMeta .pName { font-weight: 700; color: var(--text); font-size: 1rem; }
+
+    .picPreviewLarge {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--border);
+      background: var(--card);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .picPreviewLarge img { width: 100%; height: 100%; object-fit: cover; }
+    .picUploadRow { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+    .fileBtn {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 30px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .fileBtn:hover { background: var(--highlight); }
+
+    .themeGrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .themeSwatch {
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 10px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .themeSwatch.active { outline: 3px solid var(--hl-border); }
+    .swatchDot { width: 28px; height: 28px; border-radius: 50%; margin: 0 auto 6px; }
+
+    /* streak badge */
+    .streak-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 40px;
+      padding: 6px 16px 6px 20px;
+      margin-bottom: 14px;
+    }
+    .streak-box .fire { font-size: 1.5rem; }
+    .streak-box .count { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+
+    /* trivia */
+    .trivia-opt {
+      display: block;
+      width: 100%;
+      padding: 12px 14px;
+      margin: 4px 0;
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      text-align: left;
+      cursor: pointer;
+      color: var(--text);
+      transition: 0.1s;
+    }
+    .trivia-opt:hover { background: var(--highlight); }
+    .trivia-opt.correct { background: #a5d6a7; border-color: #2e7d32; }
+    .trivia-opt.wrong { background: #ef9a9a; border-color: #c62828; }
+    .trivia-opt.disabled { pointer-events: none; opacity: 0.7; }
+    .trivia-feedback {
+      margin: 8px 0 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+    .trivia-feedback.correct { background: #c8e6c9; color: #1e4a1e; }
+    .trivia-feedback.wrong { background: #ffcdd2; color: #7a1a1a; }
+
+    .difficulty-badge {
+      display: inline-block;
+      padding: 2px 12px;
+      border-radius: 30px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    .diff-easy { background: #a5d6a7; color: #1e4a1e; }
+    .diff-medium { background: #ffe082; color: #6d4c00; }
+    .diff-hard { background: #ef9a9a; color: #7a1a1a; }
+
+    .disclaimer {
+      font-size: 0.7rem;
+      color: var(--muted);
+      border-top: 1px dashed var(--border);
+      margin-top: 14px;
+      padding-top: 12px;
+      line-height: 1.4;
+    }
+
+    .footer { text-align: center; font-size: 0.7rem; color: var(--muted); margin-top: 14px; }
+
+    /* mobile tweaks */
+    @media (max-width: 480px) {
+      .container { padding: 12px 12px 18px; border-radius: 16px; }
+      h1 { font-size: 1.3rem; }
+      .navBtn { font-size: 0.65rem; padding: 4px 10px; }
+      .btn, .trivia-opt { font-size: 0.85rem; padding: 10px 12px; }
+      .startBtn { font-size: 0.9rem; padding: 11px; }
+      .profileHeader { gap: 8px; padding: 10px; }
+      .profilePicWrap { width: 44px; height: 44px; font-size: 1.4rem; }
+      .streak-box { padding: 4px 12px 4px 16px; }
+      .streak-box .count { font-size: 1.2rem; }
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <h1>🩺 My Health Check Quiz 🩺</h1>
+<div class="container" id="appContainer">
+  <h1>🩺 Health Check + Trivia</h1>
   <div id="userTag"></div>
   <div id="navbar"></div>
 
-  <!-- LOGIN -->
+  <!-- ===== LOGIN ===== -->
   <div id="screen-login" class="app-screen">
     <h2>Log In</h2>
     <div id="login-error" class="errorMsg"></div>
@@ -347,37 +452,42 @@
     <input type="password" id="login-password" placeholder="••••••••">
     <button class="startBtn" onclick="handleLogin()">Log In</button>
     <button class="ghostBtn" onclick="go('signup')">Don't have an account? Sign up</button>
-    <button class="linkBtn" style="margin-top:10px;" onclick="continueAsGuest()">Continue as Guest ➜</button>
-    <p class="formNote">psst — since this is just a front-end school project (no real server/database), accounts and history only last for this browser session and reset if you reload the page 😅</p>
+    <button class="linkBtn" style="margin-top:8px;" onclick="continueAsGuest()">Continue as Guest ➜</button>
+    <p class="formNote">(everything is stored in memory for this session only — refresh resets data)</p>
   </div>
 
-  <!-- SIGNUP -->
+  <!-- ===== SIGNUP ===== -->
   <div id="screen-signup" class="app-screen">
     <h2>Create Account</h2>
     <div id="signup-error" class="errorMsg"></div>
-    <label>Choose a username</label>
+    <label>Username</label>
     <input type="text" id="signup-username" placeholder="e.g. sam123">
-    <label>Choose a password</label>
+    <label>Password</label>
     <input type="password" id="signup-password" placeholder="••••••••">
-    <label>Confirm password</label>
+    <label>Confirm</label>
     <input type="password" id="signup-password2" placeholder="••••••••">
     <button class="startBtn" onclick="handleSignup()">Create Account</button>
     <button class="ghostBtn" onclick="go('login')">Already have an account? Log in</button>
   </div>
 
-  <!-- HOME -->
+  <!-- ===== HOME ===== -->
   <div id="screen-home" class="app-screen">
+    <div class="streak-box" id="streakDisplay">
+      <span class="fire">🔥</span>
+      <span class="count" id="streakCount">0</span>
+      <span style="font-size:0.8rem; color:var(--muted);">day streak</span>
+    </div>
     <div class="profileHeader" id="home-profile-header"></div>
-    <p>Hi! This is a little quiz I made to check how healthy your lifestyle is right now.
-    Answer honestly and you'll get a score, a "what might be going on" summary, and some tips at the end :)</p>
-    <button class="startBtn" onclick="startQuiz()">Start the Lifestyle Quiz ➜</button>
-    <button class="startBtn" style="background:#c0779e;" onclick="startIllnessQuiz()">🤒 Symptom Checker Quiz ➜</button>
-    <button class="ghostBtn" onclick="go('conditions')">📋 View My Conditions</button>
-    <button class="ghostBtn" onclick="go('profile')">👤 My Profile</button>
-    <button class="ghostBtn" onclick="go('appearance')">🎨 Change Appearance</button>
+    <p style="margin-bottom:8px;">Take a quiz or play the trivia game! Every completed quiz adds to your streak.</p>
+    <button class="startBtn" onclick="startQuiz()">📝 Lifestyle Quiz</button>
+    <button class="startBtn" style="background:#b06a8a;" onclick="startIllnessQuiz()">🤒 Symptom Checker</button>
+    <button class="startBtn" style="background:#6a8fb0;" onclick="startTrivia()">🧠 Trivia Game (20 Qs)</button>
+    <button class="ghostBtn" onclick="go('conditions')">📋 My History</button>
+    <button class="ghostBtn" onclick="go('profile')">👤 Profile</button>
+    <button class="ghostBtn" onclick="go('appearance')">🎨 Theme</button>
   </div>
 
-  <!-- QUESTION -->
+  <!-- ===== LIFESTYLE QUIZ ===== -->
   <div id="screen-quiz" class="app-screen">
     <div class="progressText" id="progress-counter">Question 1 of 12</div>
     <div class="progressBarOuter"><div class="progressBarInner" id="progress-fill" style="width:8%"></div></div>
@@ -386,118 +496,118 @@
     <div id="options-grid"></div>
   </div>
 
-  <!-- ILLNESS/SYMPTOM QUIZ -->
+  <!-- ===== SYMPTOM QUIZ ===== -->
   <div id="screen-illness-quiz" class="app-screen">
     <div class="progressText" id="illness-progress-counter">Question 1 of 12</div>
     <div class="progressBarOuter"><div class="progressBarInner" id="illness-progress-fill" style="width:8%"></div></div>
     <div class="catLabel" id="illness-question-category">Symptoms</div>
-    <h2 id="illness-question-prompt">Do you have a fever or feel feverish?</h2>
+    <h2 id="illness-question-prompt">Do you have a fever?</h2>
     <div id="illness-options-grid"></div>
   </div>
 
-  <!-- RESULTS -->
+  <!-- ===== LIFESTYLE RESULTS ===== -->
   <div id="screen-results" class="app-screen">
     <h2>Your Results</h2>
     <div class="overallBox">
       <div class="num" id="overall-value">0.0</div>
       <div>out of 10 overall</div>
-      <div id="overall-title" style="font-weight:bold; margin-top:4px;"></div>
+      <div id="overall-title" style="font-weight:600; margin-top:4px;"></div>
     </div>
-
     <div class="conditionBox">
       <h3 id="condition-title">What might be going on</h3>
       <p id="condition-desc"></p>
     </div>
-
     <div id="bars-container"></div>
-
-    <div id="signals-section" style="display:none; margin-top:10px;">
-      <p style="font-size:13px; margin-bottom:4px;"><b>You also said you've noticed:</b></p>
+    <div id="signals-section" style="display:none; margin-top:8px;">
+      <p style="font-size:0.8rem; margin-bottom:4px;"><b>You also noticed:</b></p>
       <div class="signalTags" id="signals-tags"></div>
     </div>
-
-    <div id="tips-container" style="margin-top:15px;"></div>
-
-    <div class="disclaimer">
-      Note: I made this for fun as a little wellness self-check, it's NOT a real medical diagnosis
-      and I'm not a doctor lol. If any of this feels serious or doesn't go away, please talk to
-      an actual doctor or someone you trust.
-    </div>
-
-    <button class="startBtn" onclick="go('conditions')" style="margin-top:10px;">📋 See My Conditions History</button>
-    <button class="ghostBtn" onclick="restartQuiz()">🔄 Take Quiz Again</button>
+    <div id="tips-container" style="margin-top:12px;"></div>
+    <div class="disclaimer">Not a real diagnosis — just a fun self-check. If you're worried, talk to a doctor.</div>
+    <button class="startBtn" onclick="go('conditions')">📋 History</button>
+    <button class="ghostBtn" onclick="restartQuiz()">🔄 Retake</button>
   </div>
 
-  <!-- ILLNESS RESULTS -->
+  <!-- ===== SYMPTOM RESULTS ===== -->
   <div id="screen-illness-results" class="app-screen">
-    <h2>Symptom Checker Results</h2>
-
+    <h2>Symptom Results</h2>
     <div id="illness-urgent-box" style="display:none;"></div>
-
     <div id="illness-matches-container"></div>
-
     <div id="illness-duration-note" class="tipCard" style="display:none;"></div>
+    <div class="disclaimer">For fun only — not a medical diagnosis. See a doctor for real concerns.</div>
+    <button class="startBtn" onclick="go('conditions')">📋 History</button>
+    <button class="ghostBtn" onclick="startIllnessQuiz()">🔄 Retake</button>
+  </div>
 
-    <div class="disclaimer">
-      Heads up: this is just a for-fun pattern-matching quiz based on common everyday symptoms
-      (like the kind you'd read about for a cold, flu, or allergies) — it's NOT a medical diagnosis
-      and can't tell you what you actually have. I'm not a doctor lol. If symptoms are severe,
-      don't go away, or you're worried, please see a real doctor or nurse.
+  <!-- ===== TRIVIA ===== -->
+  <div id="screen-trivia" class="app-screen">
+    <div class="progressText" id="trivia-progress">Question 1 of 20</div>
+    <div class="progressBarOuter"><div class="progressBarInner" id="trivia-progress-fill" style="width:5%"></div></div>
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+      <span class="catLabel" id="trivia-difficulty">Easy</span>
+      <span style="font-size:0.75rem; color:var(--muted);" id="trivia-score">Score: 0</span>
     </div>
-
-    <button class="startBtn" onclick="go('conditions')" style="margin-top:10px;">📋 See My Conditions History</button>
-    <button class="ghostBtn" onclick="startIllnessQuiz()">🔄 Take Symptom Quiz Again</button>
+    <h2 id="trivia-question">Loading question...</h2>
+    <div id="trivia-options"></div>
+    <div id="trivia-feedback" class="trivia-feedback" style="display:none;"></div>
+    <button class="startBtn" id="trivia-next-btn" style="display:none;" onclick="nextTriviaQuestion()">Next Question ➜</button>
+    <div style="margin-top:8px; text-align:center; font-size:0.8rem; color:var(--muted);" id="trivia-streak-note"></div>
   </div>
 
-  <!-- CONDITIONS / HISTORY -->
+  <!-- ===== TRIVIA RESULTS ===== -->
+  <div id="screen-trivia-results" class="app-screen">
+    <h2>🧠 Trivia Complete!</h2>
+    <div class="overallBox">
+      <div class="num" id="trivia-final-score">0</div>
+      <div>correct out of 20</div>
+      <div id="trivia-final-percent" style="font-weight:600; margin-top:4px;"></div>
+    </div>
+    <div class="tipCard" id="trivia-summary-tip"></div>
+    <button class="startBtn" onclick="startTrivia()">🔄 Play Again</button>
+    <button class="ghostBtn" onclick="go('home')">🏠 Home</button>
+  </div>
+
+  <!-- ===== CONDITIONS / HISTORY ===== -->
   <div id="screen-conditions" class="app-screen">
-    <h2>My Conditions</h2>
-    <p style="font-size:12.5px; color:var(--muted); margin-top:-8px;">a log of your past quiz results, most recent first</p>
+    <h2>📋 My History</h2>
+    <p style="font-size:0.75rem; color:var(--muted); margin-top:-6px;">most recent first</p>
     <div id="conditions-list"></div>
-    <button class="startBtn" onclick="startQuiz()">Take the Lifestyle Quiz</button>
-    <button class="ghostBtn" onclick="startIllnessQuiz()">🤒 Take the Symptom Checker</button>
+    <button class="startBtn" onclick="startQuiz()">Lifestyle Quiz</button>
+    <button class="startBtn" style="background:#b06a8a;" onclick="startIllnessQuiz()">Symptom Checker</button>
+    <button class="startBtn" style="background:#6a8fb0;" onclick="startTrivia()">Trivia Game</button>
   </div>
 
-  <!-- PROFILE -->
+  <!-- ===== PROFILE ===== -->
   <div id="screen-profile" class="app-screen">
     <h2>👤 My Profile</h2>
     <div id="profile-success" class="successMsg"></div>
-
     <label>Profile picture</label>
     <div class="picUploadRow">
       <div class="picPreviewLarge" id="profile-pic-preview">🙂</div>
       <div>
         <input type="file" id="profile-pic-input" accept="image/*" style="display:none;" onchange="handleProfilePicUpload(event)">
-        <button type="button" class="fileBtn" onclick="document.getElementById('profile-pic-input').click()">Choose image</button>
+        <button type="button" class="fileBtn" onclick="document.getElementById('profile-pic-input').click()">Choose</button>
         <button type="button" class="fileBtn" onclick="clearProfilePic()">Remove</button>
       </div>
     </div>
-
     <label>School section</label>
     <input type="text" id="profile-section" placeholder="e.g. Grade 10 - Rizal">
-
     <label>Grade level</label>
     <select id="profile-grade">
-      <option value="">Select grade level</option>
-      <option value="Grade 7">Grade 7</option>
-      <option value="Grade 8">Grade 8</option>
-      <option value="Grade 9">Grade 9</option>
-      <option value="Grade 10">Grade 10</option>
-      <option value="Grade 11">Grade 11</option>
-      <option value="Grade 12">Grade 12</option>
+      <option value="">Select</option>
+      <option>Grade 7</option><option>Grade 8</option><option>Grade 9</option>
+      <option>Grade 10</option><option>Grade 11</option><option>Grade 12</option>
     </select>
-
-    <label>About me / description</label>
+    <label>About me</label>
     <textarea id="profile-description" placeholder="Say a little about yourself..."></textarea>
-
     <button class="startBtn" onclick="saveProfile()">Save Profile</button>
-    <p class="formNote">this info is only stored for this browser session (no server/database), just like your quiz history 😊</p>
+    <p class="formNote">(stored in memory for this session only)</p>
   </div>
 
-  <!-- APPEARANCE -->
+  <!-- ===== APPEARANCE ===== -->
   <div id="screen-appearance" class="app-screen">
-    <h2>🎨 Change Appearance</h2>
-    <p style="font-size:13px;">pick a theme, it applies right away!</p>
+    <h2>🎨 Theme</h2>
+    <p style="font-size:0.85rem;">pick a color scheme</p>
     <div class="themeGrid" id="theme-grid"></div>
   </div>
 
@@ -505,7 +615,11 @@
 </div>
 
 <script>
-/* ---------- DATA ---------- */
+/* ============================================================
+   DATA & STATE
+   ============================================================ */
+
+// ----- LIFESTYLE QUIZ -----
 const CATEGORIES = {
   sleep: { label: "Sleep", color: "#6FBF9C" },
   body: { label: "Body", color: "#3b6ea5" },
@@ -513,7 +627,7 @@ const CATEGORIES = {
   habits: { label: "Habits", color: "#a35cc1" }
 };
 
-const QUESTIONS = [
+const LIFESTYLE_QUESTIONS = [
   { id: "q1", cat: "sleep", prompt: "How many hours do you usually sleep?", options: [{ label: "Under 5", value: 1 }, { label: "5–6 hours", value: 4.5 }, { label: "7–8 hours", value: 8.5 }, { label: "9+ hours", value: 7 }] },
   { id: "q2", cat: "sleep", prompt: "How rested do you feel when you wake up?", options: [{ label: "Exhausted", value: 1 }, { label: "Sluggish", value: 4 }, { label: "Fairly rested", value: 7 }, { label: "Fully recharged", value: 10 }] },
   { id: "q3", cat: "body", prompt: "How many days a week do you move your body?", options: [{ label: "Rarely", value: 1 }, { label: "1–2 days", value: 4 }, { label: "3–4 days", value: 7.5 }, { label: "5+ days", value: 10 }] },
@@ -533,63 +647,19 @@ const SIGNALS_QUESTION = {
 };
 
 const BANDS = {
-  sleep: [
-    { max: 4, tip: "Your sleep debt is probably catching up with you. Try waking up at the same time every day first." },
-    { max: 7, tip: "You're getting by but not fully recharging. Maybe try squeezing in 30 extra minutes." },
-    { max: 11, tip: "Your sleep looks solid, keep the routine going!" }
-  ],
-  body: [
-    { max: 4, tip: "Small changes help most here — a short daily walk and one more balanced meal a day." },
-    { max: 7, tip: "The basics are mostly there. A bit more water or consistency would round this out." },
-    { max: 11, tip: "Movement and food habits are working in your favor, nice job." }
-  ],
-  mind: [
-    { max: 4, tip: "Stress seems to be the main thing weighing on you right now. Try talking to someone you trust." },
-    { max: 7, tip: "You're managing but without much slack. A little daily downtime could help a lot." },
-    { max: 11, tip: "Your mood and connections look strong, keep investing in what's working." }
-  ],
-  habits: [
-    { max: 4, tip: "Screen time and low energy are probably feeding each other. Try one screen-free hour before bed." },
-    { max: 7, tip: "You've got some good pockets of \"me time\". A little more of it would compound." },
-    { max: 11, tip: "Your daily rhythm looks like it's working for you, not against you." }
-  ]
+  sleep: [{ max: 4, tip: "Try waking up at the same time every day." }, { max: 7, tip: "Try squeezing in 30 extra minutes." }, { max: 11, tip: "Solid sleep — keep it up!" }],
+  body: [{ max: 4, tip: "A short daily walk helps." }, { max: 7, tip: "Add more water and consistency." }, { max: 11, tip: "Great habits!" }],
+  mind: [{ max: 4, tip: "Try talking to someone you trust." }, { max: 7, tip: "Daily downtime could help." }, { max: 11, tip: "Keep investing in connections." }],
+  habits: [{ max: 4, tip: "Try one screen-free hour before bed." }, { max: 7, tip: "More 'me time' would compound." }, { max: 11, tip: "Great daily rhythm." }]
 };
 
 const OVERALL_BANDS = [
-  { max: 4, title: "Struggling a bit", desc: "A few areas are under strain at once. Maybe pick one small thing to change today." },
-  { max: 7, title: "Doing okay", desc: "Nothing's on fire, but there's room to feel better in a couple of spots below." },
-  { max: 11, title: "Doing great!", desc: "Your answers look strong across the board, keep it up!" }
+  { max: 4, title: "Struggling a bit", desc: "Pick one small thing to change today." },
+  { max: 7, title: "Doing okay", desc: "Room to feel better in a couple spots." },
+  { max: 11, title: "Doing great!", desc: "Keep it up!" }
 ];
 
-const THEMES = [
-  { id: "blue", name: "Ocean Blue", dot: "#3b6ea5" },
-  { id: "dark", name: "Dark Mode", dot: "#16202b" },
-  { id: "pink", name: "Pastel Pink", dot: "#d9709e" },
-  { id: "green", name: "Forest Green", dot: "#4c8c5b" }
-];
-
-function getConditionSummary(scores, lowestCat, overall) {
-  const catNames = { sleep: "sleep", body: "body/nutrition", mind: "stress & mood", habits: "daily habits" };
-  if (overall >= 7.5) {
-    return {
-      title: "No big red flags 🎉",
-      desc: "Based on your answers, things look pretty balanced right now. Nothing here points to a specific problem area — just keep doing what you're doing."
-    };
-  }
-  const lowScore = scores[lowestCat];
-  const patterns = {
-    sleep: "a sleep-deprivation type pattern — low sleep hours and feeling unrested tend to spill into mood, focus and energy the next day.",
-    body: "a low physical-activity / nutrition pattern — irregular meals, little water, and little movement can leave you feeling sluggish.",
-    mind: "a high-stress pattern — frequent stress, low mood, or feeling disconnected from others often shows up as tension or trouble focusing.",
-    habits: "a burnout / low-balance pattern — heavy screen time and low energy with little time for yourself can wear you down over time."
-  };
-  return {
-    title: "Possible " + catNames[lowestCat] + " strain",
-    desc: "Your lowest area was " + catNames[lowestCat] + " (" + lowScore.toFixed(1) + "/10). This roughly matches " + patterns[lowestCat]
-  };
-}
-
-/* ---------- SYMPTOM CHECKER DATA ---------- */
+// ----- SYMPTOM CHECKER -----
 const SYMPTOM_QUESTIONS = [
   { id: "fever", prompt: "Do you have a fever or feel feverish / chills?" },
   { id: "cough", prompt: "Do you have a cough?" },
@@ -615,7 +685,6 @@ const DURATION_QUESTION = {
 };
 
 const RED_FLAG_QUESTION = {
-  id: "redFlags",
   prompt: "Are you experiencing any of these right now? (pick all that apply)",
   options: [
     "Trouble breathing or chest tightness",
@@ -630,117 +699,205 @@ const ILLNESS_PROFILES = {
   cold: {
     name: "Common cold",
     weights: { congestion: 2, soreThroat: 2, cough: 1, sneezing: 1, fatigue: 0.5, fever: 0.5 },
-    desc: "This leans toward a common-cold type pattern — congestion, sore throat, and sneezing with little or no fever, which usually clears up on its own with rest and fluids within a week or so."
+    desc: "Congestion, sore throat, sneezing — usually clears up with rest."
   },
   flu: {
     name: "Flu-like illness",
     weights: { fever: 2, bodyAches: 2, fatigue: 1.5, headache: 1, cough: 1, soreThroat: 0.5 },
-    desc: "This leans toward a flu-like pattern — fever, body aches, and fatigue that came on fairly suddenly. Rest, fluids, and monitoring your temperature are usually the first steps."
+    desc: "Fever, body aches, fatigue that came on suddenly — rest and fluids."
   },
   allergies: {
     name: "Allergies",
     weights: { sneezing: 2, itchyEyes: 2, congestion: 1.5, soreThroat: 0.5 },
-    desc: "This leans toward an allergy type pattern — sneezing and itchy/watery eyes without a fever, which often points to a reaction rather than an infection."
+    desc: "Sneezing and itchy eyes without fever — likely a reaction."
   },
   stomachBug: {
-    name: "Stomach bug / digestive upset",
+    name: "Stomach bug",
     weights: { stomach: 3, fatigue: 1, fever: 0.5 },
-    desc: "This leans toward a digestive-upset pattern — nausea, vomiting, or diarrhea. Staying hydrated with small sips of water is usually the priority here."
+    desc: "Nausea, vomiting, or diarrhea — stay hydrated."
   },
   tensionFatigue: {
-    name: "Tension headache / fatigue-related",
+    name: "Tension / fatigue",
     weights: { headache: 2.5, fatigue: 1.5 },
-    desc: "This leans toward a tension-headache or general-fatigue pattern rather than an infection — things like stress, dehydration, or poor sleep can often bring this on."
+    desc: "Headache and fatigue — often stress or dehydration."
   }
 };
 
-function computeIllnessMatches(symptomAnswers) {
-  const results = Object.entries(ILLNESS_PROFILES).map(([key, profile]) => {
-    let total = 0, earned = 0;
-    Object.entries(profile.weights).forEach(([symId, w]) => {
-      total += w;
-      if (symptomAnswers[symId]) earned += w;
-    });
-    const pct = total > 0 ? (earned / total) * 100 : 0;
-    return { key, name: profile.name, desc: profile.desc, pct };
-  });
-  results.sort((a, b) => b.pct - a.pct);
-  return results;
-}
+// ----- TRIVIA (20 questions, rotates) -----
+const TRIVIA_POOL = [
+  // easy
+  { question: "How many hours of sleep do most adults need?", options: ["4-5", "6-7", "7-9", "10-12"], correct: 2, difficulty: "easy" },
+  { question: "Which of these is a healthy snack?", options: ["Chips", "Apple", "Candy bar", "Soda"], correct: 1, difficulty: "easy" },
+  { question: "How many glasses of water are recommended per day?", options: ["2", "4", "8", "12"], correct: 2, difficulty: "easy" },
+  { question: "What vitamin is mainly from sunlight?", options: ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin E"], correct: 2, difficulty: "easy" },
+  { question: "Which food is a good source of protein?", options: ["Banana", "Chicken breast", "Rice", "Bread"], correct: 1, difficulty: "easy" },
+  // medium
+  { question: "What does BMI stand for?", options: ["Body Mass Index", "Basic Metabolic Indicator", "Blood Muscle Index", "Bone Mineral Intensity"], correct: 0, difficulty: "medium" },
+  { question: "Which of these is NOT a symptom of dehydration?", options: ["Dark urine", "Dry mouth", "Fever", "Dizziness"], correct: 2, difficulty: "medium" },
+  { question: "How many minutes of moderate exercise is recommended weekly?", options: ["30", "75", "150", "300"], correct: 2, difficulty: "medium" },
+  { question: "What type of fat is considered 'good'?", options: ["Saturated", "Trans", "Unsaturated", "Hydrogenated"], correct: 2, difficulty: "medium" },
+  { question: "Which organ filters blood in the human body?", options: ["Liver", "Kidneys", "Heart", "Lungs"], correct: 1, difficulty: "medium" },
+  { question: "What is the most common mental health issue?", options: ["Bipolar", "Anxiety", "Schizophrenia", "OCD"], correct: 1, difficulty: "medium" },
+  { question: "What does 'cardio' refer to?", options: ["Brain exercise", "Heart/lungs", "Digestion", "Muscle growth"], correct: 1, difficulty: "medium" },
+  { question: "Which mineral is important for bone health?", options: ["Iron", "Calcium", "Sodium", "Zinc"], correct: 1, difficulty: "medium" },
+  // hard
+  { question: "What is the normal resting heart rate for adults?", options: ["40-50", "60-100", "110-130", "140-160"], correct: 1, difficulty: "hard" },
+  { question: "Which of these is a complex carbohydrate?", options: ["White sugar", "Brown rice", "Honey", "Fruit juice"], correct: 1, difficulty: "hard" },
+  { question: "What is the name of the body's largest organ?", options: ["Liver", "Skin", "Brain", "Lung"], correct: 1, difficulty: "hard" },
+  { question: "Which neurotransmitter affects mood and sleep?", options: ["Dopamine", "Serotonin", "Adrenaline", "Cortisol"], correct: 1, difficulty: "hard" },
+  { question: "What is the ideal blood pressure reading?", options: ["90/60", "120/80", "140/90", "160/100"], correct: 1, difficulty: "hard" },
+  { question: "What does 'HbA1c' measure?", options: ["Blood sugar over time", "Iron levels", "White blood cells", "Cholesterol"], correct: 0, difficulty: "hard" },
+  { question: "Which type of exercise builds muscle endurance?", options: ["Sprinting", "Heavy lifting", "Bodyweight circuits", "Static stretching"], correct: 2, difficulty: "hard" }
+];
 
-/* ---------- STATE (in-memory only, no localStorage — resets on refresh) ---------- */
-let users = {};           // username -> { password, history: [], profile: {...} }
-let currentUser = null;   // { username, isGuest, history, profile }
+// ----- STATE -----
+let users = {};
+let currentUser = null;
 let guestHistory = [];
 let guestProfile = { pic: null, section: '', grade: '', description: '' };
 let currentScreen = 'login';
 let currentTheme = 'blue';
 
+// lifestyle quiz
 let currentStep = 0;
 let answers = {};
 let signals = [];
-const totalSteps = QUESTIONS.length + 1;
+const totalSteps = LIFESTYLE_QUESTIONS.length + 1;
 
+// symptom quiz
 let illnessStep = 0;
 let illnessAnswers = {};
 let illnessRedFlags = [];
-const illnessTotalSteps = SYMPTOM_QUESTIONS.length + 2; // + duration + red flags
+const illnessTotalSteps = SYMPTOM_QUESTIONS.length + 2;
 
+// trivia
+let triviaQuestions = [];
+let triviaIndex = 0;
+let triviaScore = 0;
+let triviaAnswered = false;
+let triviaStreakEarned = false;
+
+// ----- HELPERS -----
 function emptyProfile() { return { pic: null, section: '', grade: '', description: '' }; }
 
-/* ---------- NAV ---------- */
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function getTriviaSet(count = 20) {
+  // ensure we have enough by repeating if needed
+  let pool = [...TRIVIA_POOL];
+  while (pool.length < count) {
+    pool = pool.concat([...TRIVIA_POOL]);
+  }
+  shuffleArray(pool);
+  return pool.slice(0, count);
+}
+
+function bandFor(list, score) { return list.find(b => score < b.max) || list[list.length - 1]; }
+
+// ----- STREAK -----
+function getStreak() {
+  if (!currentUser) return 0;
+  const history = currentUser.history || [];
+  if (history.length === 0) return 0;
+  // count consecutive days (today counts as 1)
+  // simple: just count how many entries have today's date
+  const today = new Date().toDateString();
+  let streak = 0;
+  for (const entry of history) {
+    const entryDate = new Date(entry.date).toDateString();
+    if (entryDate === today) streak++;
+    else break; // only count if consecutive from most recent
+  }
+  // if we have at least one today, streak is 1+ consecutive days
+  // but we need to check consecutive days backwards
+  // simplified: count entries from today backwards until gap
+  if (streak === 0) return 0;
+  // check consecutive days
+  let count = 1;
+  let checkDate = new Date();
+  for (let i = 1; i < history.length; i++) {
+    const prevDate = new Date(history[i].date);
+    const diff = (checkDate - prevDate) / (1000 * 60 * 60 * 24);
+    if (diff >= 1 && diff < 2) {
+      count++;
+      checkDate = prevDate;
+    } else if (diff >= 2) {
+      break;
+    }
+  }
+  return count;
+}
+
+function updateStreakDisplay() {
+  const streak = getStreak();
+  document.getElementById('streakCount').textContent = streak;
+}
+
+function addStreakEntry(type, title) {
+  if (!currentUser) return;
+  if (!currentUser.history) currentUser.history = [];
+  currentUser.history.unshift({
+    type: type,
+    date: new Date().toLocaleString(),
+    title: title,
+    streak: getStreak() + 1 // will be updated on next render
+  });
+  updateStreakDisplay();
+}
+
+// ----- NAV -----
 function renderNav() {
   const navbar = document.getElementById('navbar');
   const userTag = document.getElementById('userTag');
-
   if (!currentUser) {
     navbar.innerHTML = '';
     userTag.textContent = '';
     return;
   }
-
-  userTag.textContent = currentUser.isGuest ? "Browsing as Guest" : ("Logged in as " + currentUser.username);
-
+  userTag.textContent = currentUser.isGuest ? '👤 Guest' : ('👤 ' + currentUser.username);
   const items = [
     { id: 'home', label: '🏠 Home' },
-    { id: 'quiz', label: '📝 Lifestyle Quiz' },
-    { id: 'illness-quiz', label: '🤒 Symptom Checker' },
-    { id: 'conditions', label: '📋 My Conditions' },
-    { id: 'profile', label: '👤 My Profile' },
-    { id: 'appearance', label: '🎨 Appearance' },
-    { id: 'logout', label: '🚪 Log Out' }
+    { id: 'conditions', label: '📋 History' },
+    { id: 'profile', label: '👤 Profile' },
+    { id: 'appearance', label: '🎨 Theme' },
+    { id: 'logout', label: '🚪 Logout' }
   ];
-
   navbar.innerHTML = items.map(it =>
     `<button class="navBtn ${currentScreen === it.id ? 'active' : ''}" onclick="${it.id === 'logout' ? 'handleLogout()' : `go('${it.id}')`}">${it.label}</button>`
   ).join('');
 }
 
 function go(screenId) {
-  if (screenId === 'quiz') { startQuiz(); return; }
-  if (screenId === 'illness-quiz') { startIllnessQuiz(); return; }
+  if (screenId === 'home') {
+    renderHomeProfileHeader();
+    updateStreakDisplay();
+  }
   currentScreen = screenId;
   document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + screenId).classList.add('active');
+  const el = document.getElementById('screen-' + screenId);
+  if (el) el.classList.add('active');
   renderNav();
   if (screenId === 'conditions') renderConditions();
   if (screenId === 'appearance') renderThemeGrid();
   if (screenId === 'profile') renderProfileForm();
-  if (screenId === 'home') renderHomeProfileHeader();
 }
 
-/* ---------- AUTH ---------- */
+// ----- AUTH -----
 function handleSignup() {
   const u = document.getElementById('signup-username').value.trim();
   const p = document.getElementById('signup-password').value;
   const p2 = document.getElementById('signup-password2').value;
-  const errEl = document.getElementById('signup-error');
-  errEl.textContent = '';
-
-  if (!u || !p) { errEl.textContent = 'Please fill in a username and password.'; return; }
-  if (users[u]) { errEl.textContent = 'That username is already taken.'; return; }
-  if (p !== p2) { errEl.textContent = "Passwords don't match."; return; }
-
+  const err = document.getElementById('signup-error');
+  err.textContent = '';
+  if (!u || !p) { err.textContent = 'Fill in username and password.'; return; }
+  if (users[u]) { err.textContent = 'Username taken.'; return; }
+  if (p !== p2) { err.textContent = "Passwords don't match."; return; }
   users[u] = { password: p, history: [], profile: emptyProfile() };
   currentUser = { username: u, isGuest: false, history: users[u].history, profile: users[u].profile };
   go('home');
@@ -749,12 +906,10 @@ function handleSignup() {
 function handleLogin() {
   const u = document.getElementById('login-username').value.trim();
   const p = document.getElementById('login-password').value;
-  const errEl = document.getElementById('login-error');
-  errEl.textContent = '';
-
-  if (!users[u]) { errEl.textContent = 'No account found with that username. Try signing up!'; return; }
-  if (users[u].password !== p) { errEl.textContent = 'Wrong password, try again.'; return; }
-
+  const err = document.getElementById('login-error');
+  err.textContent = '';
+  if (!users[u]) { err.textContent = 'No account found.'; return; }
+  if (users[u].password !== p) { err.textContent = 'Wrong password.'; return; }
   if (!users[u].profile) users[u].profile = emptyProfile();
   currentUser = { username: u, isGuest: false, history: users[u].history, profile: users[u].profile };
   go('home');
@@ -768,32 +923,25 @@ function continueAsGuest() {
 function handleLogout() {
   currentUser = null;
   currentScreen = 'login';
-  document.getElementById('login-username').value = '';
-  document.getElementById('login-password').value = '';
-  document.getElementById('login-error').textContent = '';
   document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-login').classList.add('active');
   renderNav();
 }
 
-/* ---------- PROFILE ---------- */
+// ----- PROFILE -----
 function renderProfileForm() {
   if (!currentUser) return;
-  const profile = currentUser.profile || emptyProfile();
-  document.getElementById('profile-section').value = profile.section || '';
-  document.getElementById('profile-grade').value = profile.grade || '';
-  document.getElementById('profile-description').value = profile.description || '';
+  const p = currentUser.profile || emptyProfile();
+  document.getElementById('profile-section').value = p.section || '';
+  document.getElementById('profile-grade').value = p.grade || '';
+  document.getElementById('profile-description').value = p.description || '';
   document.getElementById('profile-success').textContent = '';
-  updateProfilePicPreview(profile.pic);
+  updateProfilePicPreview(p.pic);
 }
 
 function updateProfilePicPreview(picDataUrl) {
   const preview = document.getElementById('profile-pic-preview');
-  if (picDataUrl) {
-    preview.innerHTML = `<img src="${picDataUrl}" alt="Profile picture">`;
-  } else {
-    preview.innerHTML = '🙂';
-  }
+  if (picDataUrl) { preview.innerHTML = `<img src="${picDataUrl}" alt="Profile">`; } else { preview.innerHTML = '🙂'; }
 }
 
 function handleProfilePicUpload(event) {
@@ -801,7 +949,7 @@ function handleProfilePicUpload(event) {
   if (!file) return;
   if (!file.type.startsWith('image/')) {
     document.getElementById('profile-success').style.color = '#c0392b';
-    document.getElementById('profile-success').textContent = 'Please choose an image file.';
+    document.getElementById('profile-success').textContent = 'Please choose an image.';
     return;
   }
   const reader = new FileReader();
@@ -827,25 +975,23 @@ function saveProfile() {
   currentUser.profile.section = document.getElementById('profile-section').value.trim();
   currentUser.profile.grade = document.getElementById('profile-grade').value;
   currentUser.profile.description = document.getElementById('profile-description').value.trim();
-
-  const successEl = document.getElementById('profile-success');
-  successEl.style.color = '#2b7a3a';
-  successEl.textContent = 'Profile saved!';
-  setTimeout(() => { successEl.textContent = ''; }, 2000);
+  const success = document.getElementById('profile-success');
+  success.style.color = '#2b7a3a';
+  success.textContent = '✅ Profile saved!';
+  setTimeout(() => success.textContent = '', 2000);
 }
 
 function renderHomeProfileHeader() {
   const header = document.getElementById('home-profile-header');
   if (!currentUser) { header.innerHTML = ''; return; }
-  const profile = currentUser.profile || emptyProfile();
-  const picHtml = profile.pic ? `<img src="${profile.pic}" alt="Profile picture">` : '🙂';
+  const p = currentUser.profile || emptyProfile();
+  const picHtml = p.pic ? `<img src="${p.pic}" alt="Profile">` : '🙂';
   const name = currentUser.isGuest ? 'Guest' : currentUser.username;
-  const metaBits = [];
-  if (profile.grade) metaBits.push(profile.grade);
-  if (profile.section) metaBits.push(profile.section);
-  const metaLine = metaBits.length ? metaBits.join(' · ') : 'No section/grade set yet';
-  const descLine = profile.description ? profile.description : 'Tap "My Profile" to add a description about yourself.';
-
+  const meta = [];
+  if (p.grade) meta.push(p.grade);
+  if (p.section) meta.push(p.section);
+  const metaLine = meta.length ? meta.join(' · ') : 'No section/grade set';
+  const descLine = p.description || 'Tap "Profile" to add a description.';
   header.innerHTML = `
     <div class="profilePicWrap">${picHtml}</div>
     <div class="profileMeta">
@@ -856,9 +1002,7 @@ function renderHomeProfileHeader() {
   `;
 }
 
-/* ---------- LIFESTYLE QUIZ ---------- */
-function bandFor(list, score) { return list.find(b => score < b.max) || list[list.length - 1]; }
-
+// ----- LIFESTYLE QUIZ -----
 function startQuiz() {
   currentStep = 0;
   answers = {};
@@ -873,14 +1017,14 @@ function startQuiz() {
 function restartQuiz() { startQuiz(); }
 
 function updateProgress() {
-  const current = currentStep + 1;
-  document.getElementById('progress-counter').textContent = `Question ${current} of ${totalSteps}`;
-  document.getElementById('progress-fill').style.width = `${(current / totalSteps) * 100}%`;
+  const cur = currentStep + 1;
+  document.getElementById('progress-counter').textContent = `Question ${cur} of ${totalSteps}`;
+  document.getElementById('progress-fill').style.width = `${(cur / totalSteps) * 100}%`;
 }
 
 function renderQuestion() {
-  if (currentStep < QUESTIONS.length) {
-    const q = QUESTIONS[currentStep];
+  if (currentStep < LIFESTYLE_QUESTIONS.length) {
+    const q = LIFESTYLE_QUESTIONS[currentStep];
     document.getElementById('question-category').textContent = CATEGORIES[q.cat].label;
     document.getElementById('question-prompt').textContent = q.prompt;
     document.getElementById('options-grid').innerHTML = q.options.map(opt =>
@@ -902,7 +1046,7 @@ function selectAnswer(qId, value) {
   answers[qId] = value;
   setTimeout(() => {
     currentStep++;
-    if (currentStep <= QUESTIONS.length) renderQuestion();
+    if (currentStep <= LIFESTYLE_QUESTIONS.length) renderQuestion();
     else showResults();
   }, 180);
 }
@@ -919,7 +1063,7 @@ function toggleSignal(opt) {
 
 function calculateScores() {
   const byCat = { sleep: [], body: [], mind: [], habits: [] };
-  QUESTIONS.forEach(q => { if (answers[q.id] !== undefined) byCat[q.cat].push(answers[q.id]); });
+  LIFESTYLE_QUESTIONS.forEach(q => { if (answers[q.id] !== undefined) byCat[q.cat].push(answers[q.id]); });
   const scores = {};
   Object.keys(byCat).forEach(c => {
     const arr = byCat[c];
@@ -935,11 +1079,11 @@ function showResults() {
 
   document.getElementById('overall-value').textContent = overall.toFixed(1);
   const overallBand = bandFor(OVERALL_BANDS, overall);
-  document.getElementById('overall-title').textContent = overallBand.title + " — " + overallBand.desc;
+  document.getElementById('overall-title').textContent = overallBand.title + ' — ' + overallBand.desc;
 
-  const condition = getConditionSummary(scores, lowestCat, overall);
-  document.getElementById('condition-title').textContent = condition.title;
-  document.getElementById('condition-desc').textContent = condition.desc;
+  const cond = getConditionSummary(scores, lowestCat, overall);
+  document.getElementById('condition-title').textContent = cond.title;
+  document.getElementById('condition-desc').textContent = cond.desc;
 
   document.getElementById('bars-container').innerHTML = Object.entries(CATEGORIES).map(([key, cat]) => {
     const pct = (scores[key] / 10) * 100;
@@ -955,26 +1099,26 @@ function showResults() {
     return `<div class="tipCard"><b>${cat.label}:</b> ${band.tip}</div>`;
   }).join('');
 
-  const filteredSignals = signals.filter(s => s !== 'None of these');
-  if (filteredSignals.length > 0) {
+  const filtered = signals.filter(s => s !== 'None of these');
+  if (filtered.length > 0) {
     document.getElementById('signals-section').style.display = 'block';
-    document.getElementById('signals-tags').innerHTML = filteredSignals.map(s => `<span>${s}</span>`).join('');
+    document.getElementById('signals-tags').innerHTML = filtered.map(s => `<span>${s}</span>`).join('');
   } else {
     document.getElementById('signals-section').style.display = 'none';
   }
 
-  // save to this user's (or guest's) history — in memory only
   if (currentUser) {
     currentUser.history.unshift({
       type: 'lifestyle',
       date: new Date().toLocaleString(),
       overall: overall,
       overallTitle: overallBand.title,
-      conditionTitle: condition.title,
-      conditionDesc: condition.desc,
+      conditionTitle: cond.title,
+      conditionDesc: cond.desc,
       scores: scores,
-      signals: filteredSignals
+      signals: filtered
     });
+    updateStreakDisplay();
   }
 
   currentScreen = 'results';
@@ -983,7 +1127,25 @@ function showResults() {
   renderNav();
 }
 
-/* ---------- SYMPTOM CHECKER QUIZ ---------- */
+function getConditionSummary(scores, lowestCat, overall) {
+  const catNames = { sleep: 'sleep', body: 'body/nutrition', mind: 'stress & mood', habits: 'daily habits' };
+  if (overall >= 7.5) {
+    return { title: 'No big red flags 🎉', desc: 'Things look balanced. Keep it up!' };
+  }
+  const lowScore = scores[lowestCat];
+  const patterns = {
+    sleep: 'a sleep-deprivation pattern — low sleep spills into mood and focus.',
+    body: 'a low-activity/nutrition pattern — irregular meals and little movement.',
+    mind: 'a high-stress pattern — frequent stress or feeling disconnected.',
+    habits: 'a burnout/low-balance pattern — heavy screen time and low energy.'
+  };
+  return {
+    title: 'Possible ' + catNames[lowestCat] + ' strain',
+    desc: 'Your lowest area was ' + catNames[lowestCat] + ' (' + lowScore.toFixed(1) + '/10). This roughly matches ' + patterns[lowestCat]
+  };
+}
+
+// ----- SYMPTOM QUIZ -----
 function startIllnessQuiz() {
   illnessStep = 0;
   illnessAnswers = {};
@@ -996,30 +1158,29 @@ function startIllnessQuiz() {
 }
 
 function updateIllnessProgress() {
-  const current = illnessStep + 1;
-  document.getElementById('illness-progress-counter').textContent = `Question ${current} of ${illnessTotalSteps}`;
-  document.getElementById('illness-progress-fill').style.width = `${(current / illnessTotalSteps) * 100}%`;
+  const cur = illnessStep + 1;
+  document.getElementById('illness-progress-counter').textContent = `Question ${cur} of ${illnessTotalSteps}`;
+  document.getElementById('illness-progress-fill').style.width = `${(cur / illnessTotalSteps) * 100}%`;
 }
 
 function renderIllnessQuestion() {
   const grid = document.getElementById('illness-options-grid');
-
   if (illnessStep < SYMPTOM_QUESTIONS.length) {
     const q = SYMPTOM_QUESTIONS[illnessStep];
-    document.getElementById('illness-question-category').textContent = "Symptoms";
+    document.getElementById('illness-question-category').textContent = 'Symptoms';
     document.getElementById('illness-question-prompt').textContent = q.prompt;
     grid.innerHTML = `
       <button class="btn ${illnessAnswers[q.id] === true ? 'selected' : ''}" onclick="selectIllnessAnswer('${q.id}', true)">Yes</button>
       <button class="btn ${illnessAnswers[q.id] === false ? 'selected' : ''}" onclick="selectIllnessAnswer('${q.id}', false)">No</button>
     `;
   } else if (illnessStep === SYMPTOM_QUESTIONS.length) {
-    document.getElementById('illness-question-category').textContent = "Timing";
+    document.getElementById('illness-question-category').textContent = 'Timing';
     document.getElementById('illness-question-prompt').textContent = DURATION_QUESTION.prompt;
     grid.innerHTML = DURATION_QUESTION.options.map(opt =>
       `<button class="btn ${illnessAnswers.duration === opt.value ? 'selected' : ''}" onclick="selectIllnessAnswer('duration', '${opt.value}')">${opt.label}</button>`
     ).join('');
   } else {
-    document.getElementById('illness-question-category').textContent = "Safety check";
+    document.getElementById('illness-question-category').textContent = 'Safety check';
     document.getElementById('illness-question-prompt').textContent = RED_FLAG_QUESTION.prompt;
     let html = RED_FLAG_QUESTION.options.map(opt =>
       `<button class="btn ${illnessRedFlags.includes(opt) ? 'selected' : ''}" onclick="toggleRedFlag('${opt}')">${opt}</button>`
@@ -1049,19 +1210,30 @@ function toggleRedFlag(opt) {
   renderIllnessQuestion();
 }
 
+function computeIllnessMatches(symptomAnswers) {
+  return Object.entries(ILLNESS_PROFILES).map(([key, profile]) => {
+    let total = 0, earned = 0;
+    Object.entries(profile.weights).forEach(([symId, w]) => {
+      total += w;
+      if (symptomAnswers[symId]) earned += w;
+    });
+    const pct = total > 0 ? (earned / total) * 100 : 0;
+    return { key, name: profile.name, desc: profile.desc, pct };
+  }).sort((a, b) => b.pct - a.pct);
+}
+
 function showIllnessResults() {
-  const seriousFlags = illnessRedFlags.filter(f => f !== 'None of these');
+  const serious = illnessRedFlags.filter(f => f !== 'None of these');
   const urgentBox = document.getElementById('illness-urgent-box');
   const matchesContainer = document.getElementById('illness-matches-container');
   const durationNote = document.getElementById('illness-duration-note');
 
-  if (seriousFlags.length > 0) {
+  if (serious.length > 0) {
     urgentBox.style.display = 'block';
     urgentBox.innerHTML = `
       <div class="urgentBox">
-        <h3>⚠️ Please consider getting checked soon</h3>
-        <p>You flagged: ${seriousFlags.join(', ')}. These aren't something a quiz should try to sort out —
-        it's best to contact a doctor, urgent care, or emergency services rather than rely on this result.</p>
+        <h3>⚠️ Please consider getting checked</h3>
+        <p>You flagged: ${serious.join(', ')}. Contact a doctor rather than relying on this quiz.</p>
       </div>`;
   } else {
     urgentBox.style.display = 'none';
@@ -1069,19 +1241,18 @@ function showIllnessResults() {
   }
 
   const matches = computeIllnessMatches(illnessAnswers);
-  const topMatches = matches.filter(m => m.pct >= 40).slice(0, 2);
+  const top = matches.filter(m => m.pct >= 40).slice(0, 2);
 
-  if (topMatches.length === 0) {
+  if (top.length === 0) {
     matchesContainer.innerHTML = `
       <div class="conditionBox">
         <h3>Nothing specific stood out</h3>
-        <p>Your answers didn't line up strongly with any one common pattern. That could just mean mild or
-        early symptoms, general tiredness, or stress. Keep an eye on how you feel over the next day or two.</p>
+        <p>Your answers didn't line up strongly with one pattern. Keep an eye on how you feel.</p>
       </div>`;
   } else {
-    matchesContainer.innerHTML = topMatches.map((m, i) => `
+    matchesContainer.innerHTML = top.map((m, i) => `
       <div class="conditionBox">
-        <h3>${i === 0 ? 'Most likely pattern' : 'Also possible'}: ${m.name} <span class="matchPill">${Math.round(m.pct)}% match</span></h3>
+        <h3>${i === 0 ? 'Most likely' : 'Also possible'}: ${m.name} <span class="matchPill">${Math.round(m.pct)}%</span></h3>
         <p>${m.desc}</p>
       </div>
     `).join('');
@@ -1089,7 +1260,7 @@ function showIllnessResults() {
 
   if (illnessAnswers.duration === 'long') {
     durationNote.style.display = 'block';
-    durationNote.innerHTML = `<b>Note:</b> symptoms lasting more than 2 weeks are worth getting checked by a doctor regardless of what this quiz says.`;
+    durationNote.innerHTML = `<b>Note:</b> symptoms lasting >2 weeks — worth getting checked by a doctor.`;
   } else {
     durationNote.style.display = 'none';
   }
@@ -1099,11 +1270,12 @@ function showIllnessResults() {
     currentUser.history.unshift({
       type: 'symptom',
       date: new Date().toLocaleString(),
-      conditionTitle: topMatches.length ? topMatches[0].name : "No clear pattern",
-      conditionDesc: topMatches.length ? topMatches[0].desc : "No single common pattern stood out from your symptoms.",
+      conditionTitle: top.length ? top[0].name : 'No clear pattern',
+      conditionDesc: top.length ? top[0].desc : 'No single common pattern stood out.',
       signals: symptomList,
-      redFlags: seriousFlags
+      redFlags: serious
     });
+    updateStreakDisplay();
   }
 
   currentScreen = 'illness-results';
@@ -1112,37 +1284,156 @@ function showIllnessResults() {
   renderNav();
 }
 
-/* ---------- CONDITIONS HISTORY ---------- */
+// ----- TRIVIA -----
+function startTrivia() {
+  triviaQuestions = getTriviaSet(20);
+  triviaIndex = 0;
+  triviaScore = 0;
+  triviaAnswered = false;
+  triviaStreakEarned = false;
+  currentScreen = 'trivia';
+  document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-trivia').classList.add('active');
+  renderNav();
+  renderTriviaQuestion();
+}
+
+function renderTriviaQuestion() {
+  const q = triviaQuestions[triviaIndex];
+  if (!q) {
+    showTriviaResults();
+    return;
+  }
+  document.getElementById('trivia-progress').textContent = `Question ${triviaIndex+1} of 20`;
+  document.getElementById('trivia-progress-fill').style.width = `${((triviaIndex+1)/20)*100}%`;
+  document.getElementById('trivia-score').textContent = `Score: ${triviaScore}`;
+
+  const diffClass = q.difficulty === 'easy' ? 'diff-easy' : q.difficulty === 'hard' ? 'diff-hard' : 'diff-medium';
+  document.getElementById('trivia-difficulty').innerHTML = q.difficulty.charAt(0).toUpperCase() + q.difficulty.slice(1) +
+    ` <span class="difficulty-badge ${diffClass}">${q.difficulty}</span>`;
+
+  document.getElementById('trivia-question').textContent = q.question;
+  const optContainer = document.getElementById('trivia-options');
+  optContainer.innerHTML = q.options.map((opt, idx) =>
+    `<button class="trivia-opt" data-idx="${idx}" onclick="answerTrivia(${idx})">${opt}</button>`
+  ).join('');
+
+  document.getElementById('trivia-feedback').style.display = 'none';
+  document.getElementById('trivia-next-btn').style.display = 'none';
+  triviaAnswered = false;
+  document.getElementById('trivia-streak-note').textContent = '';
+}
+
+function answerTrivia(idx) {
+  if (triviaAnswered) return;
+  triviaAnswered = true;
+  const q = triviaQuestions[triviaIndex];
+  const correct = q.correct;
+  const buttons = document.querySelectorAll('#trivia-options .trivia-opt');
+  buttons.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === correct) btn.classList.add('correct');
+    if (i === idx && i !== correct) btn.classList.add('wrong');
+  });
+
+  const feedback = document.getElementById('trivia-feedback');
+  feedback.style.display = 'block';
+  if (idx === correct) {
+    feedback.className = 'trivia-feedback correct';
+    feedback.textContent = '✅ Correct! ' + (q.explanation || 'Nice job!');
+    triviaScore++;
+    document.getElementById('trivia-score').textContent = `Score: ${triviaScore}`;
+  } else {
+    feedback.className = 'trivia-feedback wrong';
+    feedback.textContent = '❌ Oops! The correct answer was: ' + q.options[correct] + (q.explanation ? ' — ' + q.explanation : '');
+  }
+
+  document.getElementById('trivia-next-btn').style.display = 'block';
+  if (triviaIndex === 19) {
+    document.getElementById('trivia-next-btn').textContent = 'See Results 🏆';
+  } else {
+    document.getElementById('trivia-next-btn').textContent = 'Next Question ➜';
+  }
+}
+
+function nextTriviaQuestion() {
+  triviaIndex++;
+  if (triviaIndex >= 20) {
+    showTriviaResults();
+  } else {
+    renderTriviaQuestion();
+  }
+}
+
+function showTriviaResults() {
+  // add to history if user logged in
+  if (currentUser) {
+    const pct = Math.round((triviaScore / 20) * 100);
+    currentUser.history.unshift({
+      type: 'trivia',
+      date: new Date().toLocaleString(),
+      title: `Trivia: ${triviaScore}/20 (${pct}%)`,
+      conditionTitle: `Trivia Score: ${triviaScore}/20`,
+      conditionDesc: `You got ${triviaScore} out of 20 correct (${pct}%). ${pct >= 80 ? '🌟 Excellent health knowledge!' : pct >= 50 ? '👍 Good effort!' : '📚 Keep learning about health!'}`
+    });
+    updateStreakDisplay();
+  }
+
+  document.getElementById('trivia-final-score').textContent = triviaScore;
+  const pct = Math.round((triviaScore / 20) * 100);
+  document.getElementById('trivia-final-percent').textContent = `${pct}% correct`;
+  let tip = '';
+  if (pct >= 80) tip = '🌟 Amazing! You really know your health stuff. Keep it up!';
+  else if (pct >= 60) tip = '👍 Great work! A little more reading and you\'ll be a health expert.';
+  else if (pct >= 40) tip = '📚 Good start! Try reading more about health and wellness.';
+  else tip = '💪 Everyone starts somewhere! Keep learning — every day is a chance to improve.';
+  document.getElementById('trivia-summary-tip').innerHTML = tip;
+
+  currentScreen = 'trivia-results';
+  document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-trivia-results').classList.add('active');
+  renderNav();
+}
+
+// ----- CONDITIONS HISTORY -----
 function renderConditions() {
   const list = document.getElementById('conditions-list');
   const history = currentUser ? currentUser.history : [];
   if (!history.length) {
-    list.innerHTML = '<div class="emptyMsg">No results yet — take a quiz to see your conditions here!</div>';
+    list.innerHTML = '<div class="emptyMsg">No history yet — take a quiz or play trivia!</div>';
     return;
   }
   list.innerHTML = history.map(h => {
-    const typeLabel = h.type === 'symptom' ? '🤒 Symptom Checker' : '📝 Lifestyle Quiz';
-    const overallLine = (h.type !== 'symptom' && typeof h.overall === 'number')
-      ? `<div style="font-size:12.5px; color:var(--muted);">Overall: ${h.overall.toFixed(1)}/10 — ${h.overallTitle}</div>`
-      : '';
+    const typeLabel = h.type === 'symptom' ? '🤒 Symptom' : h.type === 'trivia' ? '🧠 Trivia' : '📝 Lifestyle';
+    let extra = '';
+    if (h.type === 'lifestyle' && typeof h.overall === 'number') {
+      extra = `<div style="font-size:0.75rem; color:var(--muted);">Overall: ${h.overall.toFixed(1)}/10</div>`;
+    }
+    const signalsHtml = h.signals && h.signals.length ? `<div class="signalTags" style="margin-top:4px;">${h.signals.map(s => `<span>${s}</span>`).join('')}</div>` : '';
     return `
     <div class="historyCard">
       <div class="hDate"><span class="typeTag">${typeLabel}</span>${h.date}</div>
-      <div class="hTitle">${h.conditionTitle}</div>
-      <p style="font-size:13px; margin:4px 0;">${h.conditionDesc}</p>
-      ${overallLine}
-      ${h.signals && h.signals.length ? `<div class="signalTags" style="margin-top:6px;">${h.signals.map(s => `<span>${s}</span>`).join('')}</div>` : ''}
+      <div style="font-weight:600; color:var(--accent-dark);">${h.conditionTitle || h.title || 'Result'}</div>
+      <p style="font-size:0.85rem; margin:4px 0;">${h.conditionDesc || ''}</p>
+      ${extra}
+      ${signalsHtml}
     </div>`;
   }).join('');
 }
 
-/* ---------- APPEARANCE ---------- */
+// ----- APPEARANCE -----
 function renderThemeGrid() {
+  const themes = [
+    { id: 'blue', name: 'Ocean Blue', dot: '#3b6ea5' },
+    { id: 'dark', name: 'Dark Mode', dot: '#16202b' },
+    { id: 'pink', name: 'Pastel Pink', dot: '#d9709e' },
+    { id: 'green', name: 'Forest Green', dot: '#4c8c5b' }
+  ];
   const grid = document.getElementById('theme-grid');
-  grid.innerHTML = THEMES.map(t => `
+  grid.innerHTML = themes.map(t => `
     <div class="themeSwatch ${currentTheme === t.id ? 'active' : ''}" onclick="setTheme('${t.id}')">
       <div class="swatchDot" style="background:${t.dot}"></div>
-      <div style="font-size:13px; font-weight:bold;">${t.name}</div>
+      <div style="font-size:0.8rem; font-weight:600;">${t.name}</div>
     </div>
   `).join('');
 }
@@ -1153,7 +1444,7 @@ function setTheme(themeId) {
   renderThemeGrid();
 }
 
-/* ---------- INIT ---------- */
+// ----- INIT -----
 go('login');
 </script>
 </body>
